@@ -6,7 +6,7 @@ import { ArrowRightIcon, PhotoIcon } from "@heroicons/react/24/outline";
 import Button from "./button";
 
 
-export default function ImageUploadForm(){
+export default function ImageUploadForm() {
     const scanImageUrl = "/api/scan-image";
     const nextRoute = "/browse";
     const dropzoneRef = useRef<HTMLLabelElement>(null);
@@ -19,13 +19,14 @@ export default function ImageUploadForm(){
     return (
         <form onSubmit={handleSubmit} action={scanImageUrl} className="w-full h-full max-h-[700px]">
             <div className="w-full h-full flex flex-col gap-5">
-                <div className="w-full flex flex-end">
-                    <a href={nextRoute} className="flex gap-2 align-center">
-                        <span> Next </span>
+                <div className="w-full flex justify-end">
+                    <a href={nextRoute} className="flex gap-2">
+                        <span> Skip </span>
+                        <ArrowRightIcon className="h-5 w-5" />
                     </a>
                 </div>
 
-                <label 
+                <label
                     className="border-dashed border-2 rounded-xl w-full flex-grow bg-gray-200 border-gray-400 cursor-pointer"
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
@@ -44,7 +45,7 @@ export default function ImageUploadForm(){
                 </label>
 
                 <Button disabled={!image}>
-                    <span className={loading ? "opacity-30": ''}>
+                    <span className={`flex gap-2 ${loading ? "opacity-30" : ''}`}>
                         Next
                         <ArrowRightIcon className="h-5 w-5" />
                     </span>
@@ -56,51 +57,57 @@ export default function ImageUploadForm(){
                     }
                 </Button>
 
-                </div>
+            </div>
         </form>
     )
 
-    function handleImageChange(e: React.ChangeEvent<HTMLInputElement>){
-        const {target: {files}} = e;
+    function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+        const { target: { files } } = e;
         files?.[0] && setImage(files[0])
     }
 
-    function handleDragLeave(e: React.DragEvent<HTMLLabelElement>){
+    function handleDragLeave(e: React.DragEvent<HTMLLabelElement>) {
         e.preventDefault();
         dropzoneRef.current && dropzoneRef.current.classList.remove("border-gray-700", "bg-gray-400")
     }
 
-    function handleDragOver(e: React.DragEvent<HTMLLabelElement>){
+    function handleDragOver(e: React.DragEvent<HTMLLabelElement>) {
         e.preventDefault()
         dropzoneRef.current && dropzoneRef.current.classList.add("border-gray-700", "bg-gray-400")
     }
-    
-    function handleDrop(e: React.DragEvent<HTMLLabelElement>){
+
+    function handleDrop(e: React.DragEvent<HTMLLabelElement>) {
         handleDragLeave(e);
 
         const files = e.dataTransfer.files;
         files?.[0] && setImage(files[0])
     }
 
-    function handleSubmit(e: React.FormEvent<HTMLFormElement>){
+    function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
-        
-        const fd = new FormData(e.target as HTMLFormElement); // Create FormData from the form
 
         setLoading(true);
         setError('');
 
-        axios.post(scanImageUrl, fd)
-            .then(res => {
-                // handle success
-                console.log(res.data);
+        const reader = new FileReader();
+        reader.readAsDataURL(image as Blob);
+        reader.onloadend = async () => {
+            const base64Image = reader.result?.toString().split(",")[1];
+
+            axios.post(scanImageUrl, {
+                image: base64Image,
             })
-            .catch(error => {
-                setError(error.message);
-            })
-            .finally(() => {
-                setLoading(false);
-            });
-        
+                .then(res => {
+                    // handle success
+                    console.log(res.data);
+                })
+                .catch(error => {
+                    setError(error.message);
+                })
+                .finally(() => {
+                    setLoading(false);
+                });
+        }
+
     }
 }

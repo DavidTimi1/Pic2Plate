@@ -4,13 +4,13 @@ import {findIngredients} from "./scan.js";
 
 export async function POST(req: Request) {
   try {
-    const { image, description } = await req.json();
+    const { image } = await req.json();
 
-    if (!image || !description) {
-      return NextResponse.json({ error: "Image and description are required" }, { status: 400 });
+    if (!image) {
+      return NextResponse.json({ message: "No file detected" }, {status: 404});
     }
 
-    const deduced_info = await findIngredients();
+    const deduced_info = await findIngredients(image);
 
     const scanned = deduced_info.response.text();
     return NextResponse.json(scanned, { status: 200 });
@@ -19,3 +19,4 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Failed to identify meal in image" }, { status: 500 });
   }
 }
+
