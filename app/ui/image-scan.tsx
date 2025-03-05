@@ -2,34 +2,48 @@
 "use client"
 
 import { useRef, useState, useEffect } from "react";
-import axios from "axios";
 import Input from "./inputs";
 import { ExclamationCircleIcon, SparklesIcon, StarIcon } from "@heroicons/react/24/outline";
 import Button from "./button";
 import Image from "next/image";
+import RecipeAction from "../actions/recipe_action";
+import { deduceFromImage } from "../actions/scan_action";
 
 
 export default function ScanImage(){
-    const scanImageUrl = "/api/scan-image";
-
-    const [imgSrc, setImgSrc] = useState<string | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [deduced, setDeduced] = useState<any>();
-    const [error, setError] = useState('');
     
-    useEffect(() => {
-        const data = {
-            url: imgSrc
-        }
+    // get the query parameter value of image
+    const location = new URL(window.location.href);
+    const imgSrc = location.searchParams.get('image');
 
-        axios.post(scanImageUrl, data)
-        .then(res => {
-            setLoading(false);
-        })
-        .catch(err => {
-            setError(err)
-        })
-    }, []);
+    const [loading, setLoading] = useState(true);
+    const [deduced, setDeduced] = useState<any>({});
+    const [details, setDetails] = useState('');
+    const [error, setError] = useState('');
+
+    // run when the component mounts initially
+    // use the server action to deduce form image
+    // print results form server
+    useEffect(() => {
+        if (!imgSrc) return;
+
+        deduceFromImage({imageSrc: imgSrc})
+            .then(res => {
+                if (res.success){
+                    setDeduced(res.data);
+
+                } else {
+                    res.error && setError(res.error);
+                }
+            })
+            .catch(error => {
+                setError(error.message);
+            })
+            .finally(() => {
+                setLoading(false);
+            });
+    }, [imgSrc]);
+    
 
     return (
 
@@ -38,7 +52,7 @@ export default function ScanImage(){
             <div className="rounded-xl w-full h-full">
                 {
                     imgSrc ?
-                    <Image src={imgSrc} alt="" className="w-full h-full size-cover" />
+                        <Image src={imgSrc} alt="" className="w-full h-full size-cover" />
                     :
                     <div className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2">
                         <ExclamationCircleIcon className="h-10 w-10" />
@@ -50,27 +64,37 @@ export default function ScanImage(){
             </div>
 
             {
-                !loading && <PopUpWithDetails deduced={deduced} error={error} showError={setError}   />
+                loading ?
+                    <PopUpWithDetails deduced={deduced} updateDetails={updateDetails} error={error} imgSrc={imgSrc} showError={setError} showLoading={setLoading} />
+                :
+                <div className="w-full h-full bg-pink-500 flex items-center justify-center gap-2">
+                    <SparklesIcon className="w-8 h-8" />
+                    <span>
+                        Generating Recipe .... 
+                    </span>
+                </div>
             }
-            
         </div>
     )
 
+    function updateDetails(value: string){
+        setDeduced({...deduced, details: value})
+    }
 
 }
 
 
 interface PopUpProps {
+    imgSrc: string | null,
     deduced: any,
     error: string,
-    showError: Function
+    updateDetails: Function,
+    showError: Function,
+    showLoading: Function
 }
 
-function PopUpWithDetails({deduced, error, showError}: PopUpProps){
-    const [details, setDetails] = useState('');
-    const [loading, setLoading] = useState(true);
-    const generateRecipeUrl = "/api/genearate-recipe";
 
+function PopUpWithDetails({deduced, error, showError, imgSrc, updateDetails, showLoading}: PopUpProps){
 
     return (
         error ?
@@ -88,8 +112,8 @@ function PopUpWithDetails({deduced, error, showError}: PopUpProps){
                 
                 <Input label="Details" 
                     placeholder="Meal name, your budget ..."
-                    value={details}
-                    onChange={(e) => setDetails(e.target.value)}
+                    value={deduced.details}
+                    onChange={(e) => updateDetails(e.target.value)}
                 >
                     Give more information about the meal for accurate response
                 </Input>
@@ -97,7 +121,8 @@ function PopUpWithDetails({deduced, error, showError}: PopUpProps){
                 <div className="flex-grow overflow-y-auto gap-3">
                     {
                         Object.keys(deduced).map(
-                            (key:string) => <DetailSection key={key} title={key} value={deduced[key]} />
+                            // making sure details doesnt get repeated
+                            (key:string) => key === "details"? <></> : <DetailSection key={key} title={key} value={deduced[key]} />
                         )
                     }
                 </div>
@@ -114,30 +139,24 @@ function PopUpWithDetails({deduced, error, showError}: PopUpProps){
     )
     
     
-    function handleSubmit(e: React.FormEvent<HTMLFormElement>){
+    async function handleSubmit(e: React.FormEvent<HTMLFormElement>){
         e.preventDefault();
 
-        if (!imgSrc || !details){
+        if (!imgSrc && !deduced.details){
             showError("You must set at least a description text or upload an image");
             return
         }
-        
-        const fd = new FormData(e.target as HTMLFormElement); // Create FormData from the form
 
-        setLoading(true);
         showError('');
+        showLoading(true);
 
-        axios.post(generateRecipeUrl, fd)
-            .then(res => {
-                // handle success
-                console.log(res.data);
-            })
-            .catch(error => {
-                showError(error.message);
-            })
-            .finally(() => {
-                setLoading(false);
-            });
+        const res = RecipeAction({details: deduced.details})
+        if (res.success){
+            console.log(res.data)
+            // artificial delay
+            setTimeout(()=>{}, 2000)
+        }
+        
         
     }
 }
