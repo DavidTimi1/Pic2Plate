@@ -10,6 +10,7 @@ const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 
 export async function findIngredients(imgFile) {
+    let prompt;
     
     const filePart = {
         inlineData: {
@@ -18,17 +19,18 @@ export async function findIngredients(imgFile) {
         },
     };
 
-    const prompt = `As an professional cook in local dishes, Identify what meal\
+    if (imgFile){
+        prompt = `As an professional cook in local dishes, Identify what meal\
         this is in the image and give a list of the bounding boxes for the ingredients identified in the image\
         exclusively listing only those related to the meal identified. If no meal is identified return "No meal seen". \
-        Ingredient = {IngredientName: [ymin, xmin, ymax, xmax] // bounding box coordinates}
+        Ingredient = {IngredientName: [ymin, xmin, ymax, xmax] // bounding box coordinates}\
 
-        In the format { name: meal_name, ingredients: Array<Ingredient> }`;
-        
+        In the format { name: meal_name, ingredients: Array<Ingredient> }.`;
 
-    const generatedContent = await model.generateContent([filePart, prompt]);
+    }
 
-    console.log(generatedContent)
+    const convo = model.startChat();
+    const generatedContent = await convo.sendMessage([filePart, prompt]);
 
-    return generatedContent
+    return generatedContent;
 }

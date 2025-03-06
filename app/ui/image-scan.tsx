@@ -1,22 +1,21 @@
 
-"use client"
+"use client";
 
 import { useRef, useState, useEffect } from "react";
 import Input from "./inputs";
 import { ExclamationCircleIcon, SparklesIcon, StarIcon } from "@heroicons/react/24/outline";
 import Button from "./button";
-import Image from "next/image";
 import RecipeAction from "../actions/recipe_action";
 import { deduceFromImage } from "../actions/scan_action";
+import { useRouter, useSearchParams } from "next/navigation";
 
 
 export default function ScanImage(){
     
     // get the query parameter value of image
-    const location = new URL(window.location.href);
-    const imgSrc = location.searchParams.get('image');
+    const imgSrc = useSearchParams().get("image");
 
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState<'scanning'| false | 'generating'>('scanning');
     const [deduced, setDeduced] = useState<any>({});
     const [details, setDetails] = useState('');
     const [error, setError] = useState('');
@@ -25,6 +24,7 @@ export default function ScanImage(){
     // use the server action to deduce form image
     // print results form server
     useEffect(() => {
+        console.log(imgSrc);
         if (!imgSrc) return;
 
         deduceFromImage({imageSrc: imgSrc})
@@ -52,7 +52,10 @@ export default function ScanImage(){
             <div className="rounded-xl w-full h-full">
                 {
                     imgSrc ?
-                        <Image src={imgSrc} alt="" className="w-full h-full size-cover" />
+                        <>
+                        <img src={imgSrc} alt="" className="w-full h-full size-cover rounded-xl" />
+                        <div className="w-full h-4 bg-white blur-sm top-0 left-0 scan-beam"></div>
+                        </>
                     :
                     <div className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2">
                         <ExclamationCircleIcon className="h-10 w-10" />
@@ -64,15 +67,25 @@ export default function ScanImage(){
             </div>
 
             {
-                loading ?
-                    <PopUpWithDetails deduced={deduced} updateDetails={updateDetails} error={error} imgSrc={imgSrc} showError={setError} showLoading={setLoading} />
+                loading === "generating" ?
+                    <div className="fixed top-0 left-0 w-full h-full bg-pink-500 flex items-center justify-center gap-2">
+                        <SparklesIcon className="w-8 h-8" />
+                        <span>
+                            Generating Recipe .... 
+                        </span>
+                    </div>
                 :
-                <div className="w-full h-full bg-pink-500 flex items-center justify-center gap-2">
-                    <SparklesIcon className="w-8 h-8" />
-                    <span>
-                        Generating Recipe .... 
-                    </span>
-                </div>
+                loading === false?
+                    <PopUpWithDetails 
+                        deduced={deduced} 
+                        updateDetails={updateDetails} 
+                        error={error} 
+                        imgSrc={imgSrc} 
+                        showError={setError} 
+                        showLoading={setLoading} 
+                    />
+                : 
+                <></>
             }
         </div>
     )
@@ -97,45 +110,57 @@ interface PopUpProps {
 function PopUpWithDetails({deduced, error, showError, imgSrc, updateDetails, showLoading}: PopUpProps){
 
     return (
-        error ?
-            <div className="p-5 flex flex-col align-center justify-center">
-                {error}
-                <Button onClick={() => showError('')}>
-                    Try Again 
-                </Button>
-            </div>
-        :
-            <form onSubmit={handleSubmit} className="fixed flex flex-col rounded-t-2xl pb-0 w-full px-3 md:px-10 max-h-[min(500px,80vh)] overflow-hidden">
+        <div className="fixed top-0 left-0 w-full h-full bg-slate-300 bg-opacity-20">
+            <form onSubmit={handleSubmit} className="absolute bg-black flex flex-col rounded-t-2xl pb-0 w-full bottom-0 px-3 md:px-10 max-h-[min(500px,80vh)] overflow-hidden">
                 <div className="w-full h-5">
-                    <div className="mx-auto h-1 bg-white w-3 rounded-full"></div>
+                    <div className="mx-auto my-2 h-1 bg-white w-10 rounded-full"></div>
                 </div>
-                
-                <Input label="Details" 
-                    placeholder="Meal name, your budget ..."
-                    value={deduced.details}
-                    onChange={(e) => updateDetails(e.target.value)}
-                >
-                    Give more information about the meal for accurate response
-                </Input>
 
-                <div className="flex-grow overflow-y-auto gap-3">
-                    {
-                        Object.keys(deduced).map(
-                            // making sure details doesnt get repeated
-                            (key:string) => key === "details"? <></> : <DetailSection key={key} title={key} value={deduced[key]} />
-                        )
-                    }
-                </div>
-                
-                <Button>
-                    <div className="flex gap-2">
-                        <span>
-                            Prepare Recipe
-                        </span>
-                        <SparklesIcon />
-                    </div>
-                </Button>
+                {
+                    error ?
+                        <div className="p-5 flex flex-col gap-2 align-center justify-center">
+                            <div className="bg-red-500 text-white p-3 rounded-xl">
+                                {error}
+                            </div>
+                            <Button onClick={() => showError('')}>
+                                Try Again 
+                            </Button>
+                        </div>
+                    :
+                        <>
+                        <Input label="Details" 
+                            placeholder="Meal name, your budget ..."
+                            value={deduced.details}
+                            onChange={(e) => updateDetails(e.target.value)}
+                        >
+                            Give more information about the meal for accurate response
+                        </Input>
+
+                        <div className="flex-grow overflow-y-auto gap-3">
+                            <DetailSection title="Meal Name" value={deduced["name"]} />
+
+                            <DetailSection title="Ingredients" value={ Object.keys(deduced["ingredients"] ).join("\n") } />
+
+                            {/* {
+                                Object.keys(deduced["ingredients"]).map(
+                                    // making sure details doesnt get repeated
+                                    (key:string) => key === "details"? <></> : <DetailSection key={key} title={key} value={deduced[key]} />
+                                )
+                            } */}
+                        </div>
+                        
+                        <Button>
+                            <div className="flex gap-2">
+                                <span>
+                                    Prepare Recipe
+                                </span>
+                                <SparklesIcon />
+                            </div>
+                        </Button>
+                        </>
+                }
             </form>
+        </div>
     )
     
     
@@ -144,13 +169,14 @@ function PopUpWithDetails({deduced, error, showError, imgSrc, updateDetails, sho
 
         if (!imgSrc && !deduced.details){
             showError("You must set at least a description text or upload an image");
+            showLoading(false);
             return
         }
 
         showError('');
-        showLoading(true);
+        showLoading('generating');
 
-        const res = RecipeAction({details: deduced.details})
+        const res = await RecipeAction({details: deduced.details})
         if (res.success){
             console.log(res.data)
             // artificial delay
