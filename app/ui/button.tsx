@@ -10,7 +10,7 @@ export default function Button ({ children, className, deEmphasize = false, type
     const importanceStyles = deEmphasize? "border-pink-800 bg-transparent hover:bg-pink-800" : "border-transparent bg-pink-600 hover:bg-pink-900"
 
     return (
-        <button {...props} className={`rounded-full border border-solid transition-colors flex items-center justify-center text-white text-sm sm:text-base px-3 py-2 ${importanceStyles} ${className}`}>
+        <button {...props} type={type} className={`rounded-full border border-solid transition-colors flex items-center justify-center text-white text-sm sm:text-base px-3 py-2 ${importanceStyles} ${className}`}>
             {children}
         </button>
     )
