@@ -20,6 +20,7 @@ export async function uploadImageAction(formData: FormData): Promise<{ success: 
         return { success: true, url: `/uploads/${newFileName}` };
 
     } catch (error) {
+        console.log(error);
         return { success: false, error: "File save failed" };
     }
 }
