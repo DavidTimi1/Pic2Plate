@@ -1,7 +1,11 @@
+"use server";
 
-export function setCookies(res: any) {
+import { cookies } from "next/headers";
 
-  res.cookies.set("session_data", JSON.stringify({ theme: "dark" }), {
+export async function setCookies(data: any) {
+
+  const cookieJar = await cookies();
+  cookieJar.set("session_data", JSON.stringify(data), {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     maxAge: 60 * 60 * 24, // 1 day
@@ -9,6 +13,7 @@ export function setCookies(res: any) {
   });
 }
 
-export function getCookies(req: any){
-  return JSON.parse(req.cookies.session_data || "{}")
+export async function getCookies(){
+  const cookieJar = await cookies();
+  return JSON.parse( cookieJar.get("session_data") as any );
 }
