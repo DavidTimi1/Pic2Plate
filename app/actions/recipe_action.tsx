@@ -4,34 +4,34 @@
 import { randomUUID } from "crypto";
 import { getCookies } from "../api/cookies";
 import fs from "fs/promises";
+import { Content } from "@google/generative-ai";
 import path from "path";
 import { getRecipe } from "../api/generate-recipe/recipe";
 import { cleanJSON } from "../lib/helpers";
 
 interface RecipeActionProps {
-    mealName: string,
-    imageSrc: string,
-    ingredients: string,
+    mealName: string | null,
+    imgSrc: string | null,
+    ingredients: string[],
     id: string,
     details: string,
 }
 
 
-export default async function RecipeAction({id, ingredients, imageSrc, mealName, details}: RecipeActionProps){
+export default async function RecipeAction({id, ingredients, imgSrc, mealName, details}: RecipeActionProps){
     const convoID = id;
-    const userID = await getCookies().then(data => data.userID);
+    // const userID = await getCookies().then(data => data.userID);
 
     // create a history object based on previously generated info
     const prevGenerated = {
         mealName,
         ingredients,
     }
-    const history = convoHistory(imageSrc, JSON.stringify(prevGenerated));
+    const history = convoHistory(imgSrc, JSON.stringify(prevGenerated));
     
     try {
         const ai_response = await getRecipe(details, history);
         const recipe = cleanJSON(ai_response);
-        // saveState(userID, convoID, {imageSrc});
 
         return { success: true, data: recipe, id: convoID };
 
@@ -73,21 +73,16 @@ async function convoHistory(imgSrc: string | null, prevJSON: string){
                 role: "user",
                 parts: [
                     filePart,
-                    {
-                        text: "As an professional cook in local dishes, Identify what meal\
-                            this is in the image and give a list of the ingredients identified in the image in the format { name: meal_name, ingredients: Array<Ingredient> }.",
-                    },
+                    "As an professional cook in local dishes, Identify what meal\
+                        this is in the image and give a list of the ingredients identified in the image\
+                        In the format { name: meal_name, ingredients: Array<Ingredient> }.",
                 ]
             });
 
             // model response (scan)
             history.push({
                 role: "model",
-                parts: [
-                    {
-                        text: prevJSON,
-                    },
-                ]
+                parts: [ prevJSON ]
             });
 
         }
