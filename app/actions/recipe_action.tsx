@@ -27,10 +27,10 @@ export default async function RecipeAction({id, ingredients, imgSrc, mealName, d
         mealName,
         ingredients,
     }
-    const history = convoHistory(imgSrc, JSON.stringify(prevGenerated));
+    const chatHistory = await convoHistory(imgSrc, JSON.stringify(prevGenerated));
     
     try {
-        const ai_response = await getRecipe(details, history);
+        const ai_response = await getRecipe(details, chatHistory);
         const recipe = cleanJSON(ai_response);
 
         return { success: true, data: recipe, id: convoID };
@@ -73,16 +73,20 @@ async function convoHistory(imgSrc: string | null, prevJSON: string){
                 role: "user",
                 parts: [
                     filePart,
-                    "As an professional cook in local dishes, Identify what meal\
+                    {
+                        text: "As an professional cook in local dishes, Identify what meal\
                         this is in the image and give a list of the ingredients identified in the image\
-                        In the format { name: meal_name, ingredients: Array<Ingredient> }.",
+                        In the format { name: meal_name, ingredients: Array<Ingredient> } no comments, pure json."
+                    },
                 ]
             });
 
             // model response (scan)
             history.push({
                 role: "model",
-                parts: [ prevJSON ]
+                parts: [{
+                    text: prevJSON
+                }]
             });
 
         }

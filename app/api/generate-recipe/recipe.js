@@ -10,14 +10,13 @@ const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 export async function getRecipe(description, history) {
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" })
 
-    const convo = model.startChat({ history: Array.isArray(history) ? history : [] });
+    const convo = model.startChat({ history });
 
     const prompt = `Generate a detailed step-by-step recipe for this meal. 
         Keep in mind (very important): ${description}
-        Ingredient: {name, quantity}
-        Step: {description, duration?, price?} # duration and price only when necessary
-        {Ingredients: Array<Ingredient>, Recipe: Array<Steps>}
-        
+        type Ingredient: {name, quantity}
+        type Step: {description, duration?, price?} # duration and price only when necessary
+        In the format {Ingredients: Ingredient[], Recipe: Step[]}
         `;
 
     const generatedContent = await convo.sendMessage(prompt)

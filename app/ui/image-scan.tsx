@@ -17,7 +17,7 @@ export default function ScanImage(){
     // get the query parameter value of image
     const imgSrc = useSearchParams().get("image");
 
-    const [loading, setLoading] = useState<'scanning'| false | 'generating'>('scanning');
+    const [loading, setLoading] = useState<'scanning'| false | 'generating'>(imgSrc? 'scanning': false);
     const [deduced, setDeduced] = useState<any>({});
     const [error, setError] = useState('');
     const [rerender, setRerender] = useState(false);
@@ -98,8 +98,9 @@ export default function ScanImage(){
     )
 
     function updateDetails(value: string | null){
-        if (value){
+        if (value !== null){
             setDeduced({...deduced, details: value})
+            
         } else {
             // trigger rescan image
             setLoading("scanning")
@@ -202,7 +203,11 @@ function PopUpWithDetails({deduced, error, showError, imgSrc, updateDetails, sho
         if (res.success){
             console.log(res.data)
             // artificial delay
-            setTimeout(()=>{}, 2000)
+            setTimeout(()=>{}, 1000)
+
+        } else {
+            showError(res.error);
+            showLoading(false);
         }
         
         
