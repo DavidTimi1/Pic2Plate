@@ -10,7 +10,11 @@ import {addSeshHistory} from "../session.js";
 import { cleanJSON } from "../lib/helpers";
 
 
-export async function deduceFromImage(json: {imageSrc: string}): Promise<{ success: Boolean, data?: any, id?: string, error?: string }> {
+export async function deduceFromImage(json: {imageSrc: string}): Promise<{ success: Boolean, 
+                                                                            data?: any, 
+                                                                            id?: string, 
+                                                                            error?: string 
+                                                                        }> {
     const imageSrc = json.imageSrc;
 
     // check if file exists

@@ -1,0 +1,15 @@
+
+
+.scan-beam {
+    animation: scanbeam-scan 2s linear alternate-reverse infinite;
+}
+
+
+@keyframes scanbeam-scan {
+    0% {
+        top: 0;
+    }
+    100% {
+        top: 100%;
+    }
+}

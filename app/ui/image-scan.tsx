@@ -1,8 +1,10 @@
 
 "use client";
 
+import "@/app/ui/scan-image.css";
+
 import { useRef, useState, useEffect } from "react";
-import Input from "./inputs";
+import Input, { TextArea } from "./inputs";
 import { ExclamationCircleIcon, SparklesIcon, StarIcon } from "@heroicons/react/24/outline";
 import Button from "./button";
 import RecipeAction from "../actions/recipe_action";
@@ -17,8 +19,8 @@ export default function ScanImage(){
 
     const [loading, setLoading] = useState<'scanning'| false | 'generating'>('scanning');
     const [deduced, setDeduced] = useState<any>({});
-    const [details, setDetails] = useState('');
     const [error, setError] = useState('');
+    const [rerender, setRerender] = useState(false);
 
     // run when the component mounts initially
     // use the server action to deduce form image
@@ -30,7 +32,9 @@ export default function ScanImage(){
         deduceFromImage({imageSrc: imgSrc})
             .then(res => {
                 if (res.success){
-                    setDeduced(res.data);
+                    setTimeout( 
+                        () => setDeduced({...res.data, id: res.id})
+                    , 1000 )
 
                 } else {
                     res.error && setError(res.error);
@@ -42,7 +46,7 @@ export default function ScanImage(){
             .finally(() => {
                 setLoading(false);
             });
-    }, [imgSrc]);
+    }, [rerender]);
     
 
     return (
@@ -54,7 +58,10 @@ export default function ScanImage(){
                     imgSrc ?
                         <>
                         <img src={imgSrc} alt="" className="w-full h-full size-cover rounded-xl" />
-                        <div className="w-full h-4 bg-white blur-sm top-0 left-0 scan-beam"></div>
+                        { 
+                            loading === "scanning" &&
+                            <div className="w-full h-4 absolute bg-white blur-sm top-0 left-0 scan-beam"></div>
+                        }
                         </>
                     :
                     <div className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2">
@@ -90,8 +97,14 @@ export default function ScanImage(){
         </div>
     )
 
-    function updateDetails(value: string){
-        setDeduced({...deduced, details: value})
+    function updateDetails(value: string | null){
+        if (value){
+            setDeduced({...deduced, details: value})
+        } else {
+            // trigger rescan image
+            setLoading("scanning")
+            setRerender(!rerender)
+        }
     }
 
 }
@@ -108,38 +121,41 @@ interface PopUpProps {
 
 
 function PopUpWithDetails({deduced, error, showError, imgSrc, updateDetails, showLoading}: PopUpProps){
+    const ingredients = Object.keys(deduced?.["ingredients"] ?? {} )
 
     return (
         <div className="fixed top-0 left-0 w-full h-full bg-slate-300 bg-opacity-20">
-            <form onSubmit={handleSubmit} className="absolute bg-black flex flex-col rounded-t-2xl pb-0 w-full bottom-0 px-3 md:px-10 max-h-[min(500px,80vh)] overflow-hidden">
+            <form onSubmit={handleSubmit} className="absolute bg-black flex items-center justify-center flex-col rounded-t-2xl py-2 w-full bottom-0 px-3 md:px-10 max-h-[min(700px,80vh)] min-h-60 overflow-hidden">
                 <div className="w-full h-5">
-                    <div className="mx-auto my-2 h-1 bg-white w-10 rounded-full"></div>
+                    <div className="mx-auto my-1 h-1 bg-white w-16 rounded-full"></div>
                 </div>
+                <div className="w-full flex justify-center flex-col gap-2 overflow-y-auto flex-grow">
 
                 {
                     error ?
-                        <div className="p-5 flex flex-col gap-2 align-center justify-center">
+                        <div className="p-5 flex w-full flex-col gap-2 align-center justify-center">
                             <div className="bg-red-500 text-white p-3 rounded-xl">
                                 {error}
                             </div>
-                            <Button onClick={() => showError('')}>
+                            <Button onClick={retryAction}>
                                 Try Again 
                             </Button>
                         </div>
                     :
                         <>
-                        <Input label="Details" 
+                        <TextArea label="Details"
+                            rows={2}
                             placeholder="Meal name, your budget ..."
                             value={deduced.details}
                             onChange={(e) => updateDetails(e.target.value)}
                         >
                             Give more information about the meal for accurate response
-                        </Input>
+                        </TextArea>
 
                         <div className="flex-grow overflow-y-auto gap-3">
                             <DetailSection title="Meal Name" value={deduced["name"]} />
 
-                            <DetailSection title="Ingredients" value={ Object.keys(deduced["ingredients"] ).join("\n") } />
+                            <DetailSection title="Ingredients" value={ ingredients.join("\n") } />
 
                             {/* {
                                 Object.keys(deduced["ingredients"]).map(
@@ -149,23 +165,24 @@ function PopUpWithDetails({deduced, error, showError, imgSrc, updateDetails, sho
                             } */}
                         </div>
                         
-                        <Button>
-                            <div className="flex gap-2">
+                        <Button type="submit">
+                            <div className="flex gap-2 items-center justify-center">
                                 <span>
                                     Prepare Recipe
                                 </span>
-                                <SparklesIcon />
+                                <SparklesIcon className="h-6 w-6" />
                             </div>
                         </Button>
                         </>
                 }
+                </div>
             </form>
         </div>
     )
     
     
-    async function handleSubmit(e: React.FormEvent<HTMLFormElement>){
-        e.preventDefault();
+    async function handleSubmit(e?: React.FormEvent<HTMLFormElement>){
+        e?.preventDefault?.();
 
         if (!imgSrc && !deduced.details){
             showError("You must set at least a description text or upload an image");
@@ -176,7 +193,12 @@ function PopUpWithDetails({deduced, error, showError, imgSrc, updateDetails, sho
         showError('');
         showLoading('generating');
 
-        const res = await RecipeAction({details: deduced.details})
+        const res = await RecipeAction({
+            id: deduced.id,
+            imgSrc, ingredients,
+            mealName: deduced.name,
+            details: deduced.details,
+        })
         if (res.success){
             console.log(res.data)
             // artificial delay
@@ -184,6 +206,22 @@ function PopUpWithDetails({deduced, error, showError, imgSrc, updateDetails, sho
         }
         
         
+    }
+
+    function retryAction(){
+        // if scan failed rescan
+        // if scan successful, retry recipe generation
+        // if no image retry recipe generation
+        showError('');
+
+        if (!imgSrc || ingredients.length){
+            console.log("Generating recipe again")
+            handleSubmit();
+
+        } 
+        else {
+            updateDetails(null);
+        }
     }
 }
 

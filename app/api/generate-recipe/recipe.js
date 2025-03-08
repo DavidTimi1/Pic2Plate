@@ -9,7 +9,6 @@ const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 export async function getRecipe(description, history) {
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" })
-    console.log(A)
 
     const convo = model.startChat({ history: Array.isArray(history) ? history : [] });
 
