@@ -4,15 +4,11 @@
 import fs from "fs/promises";
 import path from "path";
 import { findIngredients } from "../api/scan-image/scan";
-import { randomUUID } from "crypto";
-import { setCookies } from "../api/cookies";
-import {addSeshHistory} from "../session.js";
 import { cleanJSON } from "../lib/helpers";
 
 
 export async function deduceFromImage(json: {imageSrc: string}): Promise<{ success: Boolean, 
                                                                             data?: any, 
-                                                                            id?: string, 
                                                                             error?: string 
                                                                         }> {
     const imageSrc = json.imageSrc;
@@ -33,15 +29,12 @@ export async function deduceFromImage(json: {imageSrc: string}): Promise<{ succe
 
     const image_blob = await fs.readFile(filePath);
     const image_data = image_blob.toString("base64");
-    
-    const convoID = randomUUID();
 
     try {
         const ai_response = await findIngredients(image_data);
         const scanned = cleanJSON(ai_response);
-        // saveState(convoID, {imageSrc});
 
-        return { success: true, data: scanned, id: convoID };
+        return { success: true, data: scanned };
 
     } catch(err){
         console.log(err)

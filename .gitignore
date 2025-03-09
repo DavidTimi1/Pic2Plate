@@ -39,3 +39,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# public uploads
+/public/uploads/*
+!/public/uploads/.nomedia
+
+# essions
+/sessions/*
+!/sessions/.nomedia

@@ -1,13 +1,12 @@
 
 "use server";
 
-import { randomUUID } from "crypto";
-import { getCookies } from "../api/cookies";
 import fs from "fs/promises";
-import { Content } from "@google/generative-ai";
 import path from "path";
 import { getRecipe } from "../api/generate-recipe/recipe";
-import { cleanJSON } from "../lib/helpers";
+import { cleanJSON, getUserID } from "../lib/helpers";
+import { randomUUID } from "crypto";
+import { addSeshHistory } from "../session";
 
 interface RecipeActionProps {
     mealName: string | null,
@@ -18,9 +17,10 @@ interface RecipeActionProps {
 }
 
 
-export default async function RecipeAction({id, ingredients, imgSrc, mealName, details}: RecipeActionProps){
-    const convoID = id;
-    // const userID = await getCookies().then(data => data.userID);
+export default async function RecipeAction({ingredients, imgSrc, mealName, details}: RecipeActionProps){    
+    // Retrieve user ID
+    const userID = await getUserID();
+    const convoID = randomUUID();
 
     // create a history object based on previously generated info
     const prevGenerated = {
@@ -33,11 +33,14 @@ export default async function RecipeAction({id, ingredients, imgSrc, mealName, d
         const ai_response = await getRecipe(details, chatHistory);
         const recipe = cleanJSON(ai_response);
 
+        addSeshHistory(userID, convoID, recipe);
+
         return { success: true, data: recipe, id: convoID };
 
     } catch(err){
         console.log(err)
         return { success: false, error: "Error prompting AI model" };
+
     }
 }
 
