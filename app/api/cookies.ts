@@ -15,5 +15,5 @@ export async function setCookies(data: any) {
 
 export async function getCookies(){
   const cookieJar = await cookies();
-  return JSON.parse( cookieJar.get("session_data") as any );
+  return JSON.parse( cookieJar.get("session_data") as any ?? "{}" );
 }

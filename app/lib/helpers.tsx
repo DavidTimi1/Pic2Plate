@@ -1,3 +1,5 @@
+import { randomUUID } from "crypto";
+import { getCookies, setCookies } from "../api/cookies";
 
 
 
@@ -13,4 +15,21 @@ export function cleanJSON(generatedContent: any) {
     const cleanedJSON = JSON.parse(deduced_info.slice(start, end));
 
     return cleanedJSON;
+}
+
+
+export async function getUserID(){
+    // Retrieve or set session cookie
+    const cookies = await getCookies();
+    let userID;
+
+    if (cookies.userID) {
+        userID = cookies.userID;
+        
+    } else {
+        userID = randomUUID();
+        setCookies({userID});
+    }
+
+    return userID;
 }
