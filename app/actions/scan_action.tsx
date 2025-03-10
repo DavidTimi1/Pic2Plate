@@ -3,7 +3,7 @@
 
 import fs from "fs/promises";
 import path from "path";
-import { findIngredients } from "../api/scan-image/scan";
+import { findIngredients } from "../lib/scan";
 import { cleanJSON } from "../lib/helpers";
 
 

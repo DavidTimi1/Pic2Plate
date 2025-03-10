@@ -1,5 +1,5 @@
 import { randomUUID } from "crypto";
-import { getCookies, setCookies } from "../api/cookies";
+import { getCookies, setCookies } from "./cookies";
 
 
 

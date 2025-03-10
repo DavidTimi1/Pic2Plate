@@ -5,26 +5,31 @@
 import fs from 'fs';
 import path from 'path';
 
-const sessions = {};
+const sessions: any = {};
+
+interface userSession {
+    history: any[],
+}
 
 
-export function getSession(userId) {
+export function getSession(userId: string): userSession {
     // restore session from backup if session object is empty
 
     if (!sessions[userId]) {
-        const userHistory = restoreSession(userId);
+        const userSessionObj = restoreSession(userId);
 
-        sessions[userId] = {
-            history: userHistory,
-        };
+        sessions[userId] = userSessionObj;
     }
 
     return sessions[userId];
 }
 
 
-export function addSeshHistory(userId, newData, convoID) {
-    getSession(userId).history.push({
+export function addSeshHistory(userId :string, convoID: string, newData: any) {
+    const userSession = getSession(userId);
+    const userHistory = userSession.history;
+
+    userHistory.push({
         id: convoID,
         data: newData,
     });
@@ -32,12 +37,12 @@ export function addSeshHistory(userId, newData, convoID) {
 }
 
 
-export function getSeshHistory(userId) {
+export function getSeshHistory(userId: string) {
     return getSession(userId).history;
 }
 
 
-export function backupSession(userID) {
+export function backupSession(userID: string) {
     // Object.keys(sessions).forEach((userId) => {
     //     const sessionPath = path.join(process.cwd(), 'sessions', `${userId}.json`);
     //     const sessionJSON = JSON.stringify(sessions[userId]);
@@ -51,10 +56,10 @@ export function backupSession(userID) {
 }
 
 
-export function restoreSession(userID) {
+export function restoreSession(userID: string) {
     const sessionPath = path.join(process.cwd(), 'sessions', `${userID}.json`);
     if (!fs.existsSync(sessionPath)) {
-        return [];
+        return {history: []};
     }
 
     const sessionJSON = fs.readFileSync(sessionPath, 'utf8');

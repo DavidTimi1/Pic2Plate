@@ -3,7 +3,7 @@
 
 import fs from "fs/promises";
 import path from "path";
-import { getRecipe } from "../api/generate-recipe/recipe";
+import { getRecipe } from "../lib/recipe";
 import { cleanJSON, getUserID } from "../lib/helpers";
 import { randomUUID } from "crypto";
 import { addSeshHistory } from "../session";
@@ -35,7 +35,7 @@ export default async function RecipeAction({ingredients, imgSrc, mealName, detai
 
         addSeshHistory(userID, convoID, recipe);
 
-        return { success: true, data: recipe, id: convoID };
+        return { success: true, id: convoID };
 
     } catch(err){
         console.log(err)

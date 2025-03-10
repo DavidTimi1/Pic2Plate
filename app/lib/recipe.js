@@ -16,7 +16,7 @@ export async function getRecipe(description, history) {
         Keep in mind (very important): ${description}
         type Ingredient: {name, quantity}
         type Step: {description, duration?, price?} # duration and price only when necessary
-        In the format {Ingredients: Ingredient[], Recipe: Step[]}
+        In the format { mealName: meal_name, ingredients: Ingredient[], recipe: Step[] }
         `;
 
     const generatedContent = await convo.sendMessage(prompt)
