@@ -123,6 +123,8 @@ interface PopUpProps {
 
 function PopUpWithDetails({deduced, error, showError, imgSrc, updateDetails, showLoading}: PopUpProps){
     const ingredients = Object.keys(deduced?.["ingredients"] ?? {} )
+    const router = useRouter();
+
 
     return (
         <div className="fixed top-0 left-0 w-full h-full bg-slate-300 bg-opacity-20">
@@ -158,12 +160,6 @@ function PopUpWithDetails({deduced, error, showError, imgSrc, updateDetails, sho
 
                             <DetailSection title="Ingredients" value={ ingredients.join("\n") } />
 
-                            {/* {
-                                Object.keys(deduced["ingredients"]).map(
-                                    // making sure details doesnt get repeated
-                                    (key:string) => key === "details"? <></> : <DetailSection key={key} title={key} value={deduced[key]} />
-                                )
-                            } */}
                         </div>
                         
                         <Button type="submit">
@@ -201,9 +197,8 @@ function PopUpWithDetails({deduced, error, showError, imgSrc, updateDetails, sho
             details: deduced.details,
         })
         if (res.success){
-            console.log(res.data)
-            // artificial delay
-            setTimeout(()=>{}, 1000)
+            // navigate to view the full recipe
+            router.push(`/recipe/${res.id}`);
 
         } else {
             showError(res.error);
