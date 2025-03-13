@@ -3,13 +3,23 @@
 
 import "@/app/ui/scan-image.css";
 
-import { useRef, useState, useEffect } from "react";
-import Input, { TextArea } from "./inputs";
-import { ExclamationCircleIcon, SparklesIcon, StarIcon } from "@heroicons/react/24/outline";
+import { useState, useEffect } from "react";
+import { TextArea } from "./inputs";
+import { ExclamationCircleIcon, SparklesIcon } from "@heroicons/react/24/outline";
 import Button from "./button";
 import RecipeAction from "../actions/recipe_action";
 import { deduceFromImage } from "../actions/scan_action";
 import { useRouter, useSearchParams } from "next/navigation";
+import { IngredientLocation, Scanned } from "../lib/definitions";
+
+
+
+interface DeducedInfo {
+    name: string,
+    details: string,
+    ingredients: IngredientLocation
+}
+
 
 
 export default function ScanImage(){
@@ -18,7 +28,7 @@ export default function ScanImage(){
     const imgSrc = useSearchParams().get("image");
 
     const [loading, setLoading] = useState<'scanning'| false | 'generating'>(imgSrc? 'scanning': false);
-    const [deduced, setDeduced] = useState<any>({});
+    const [deduced, setDeduced] = useState<DeducedInfo>();
     const [error, setError] = useState('');
     const [rerender, setRerender] = useState(false);
 
@@ -26,18 +36,17 @@ export default function ScanImage(){
     // use the server action to deduce form image
     // print results form server
     useEffect(() => {
-        console.log(imgSrc);
         if (!imgSrc) return;
 
         deduceFromImage({imageSrc: imgSrc})
             .then(res => {
-                if (res.success){
+                if (res.success && res.data){
                     setTimeout( 
-                        () => setDeduced({...res.data, id: res.id})
+                        () => setDeduced({...res.data, details: ''})
                     , 1000 )
 
                 } else {
-                    res.error && setError(res.error);
+                    if (res.error) setError(res.error);
                 }
             })
             .catch(error => {
@@ -46,7 +55,7 @@ export default function ScanImage(){
             .finally(() => {
                 setLoading(false);
             });
-    }, [rerender]);
+    }, [rerender, imgSrc]);
     
 
     return (
@@ -99,7 +108,7 @@ export default function ScanImage(){
 
     function updateDetails(value: string | null){
         if (value !== null){
-            setDeduced({...deduced, details: value})
+            setDeduced({...deduced, details: value} as DeducedInfo)
             
         } else {
             // trigger rescan image
@@ -113,16 +122,16 @@ export default function ScanImage(){
 
 interface PopUpProps {
     imgSrc: string | null,
-    deduced: any,
+    deduced: DeducedInfo | undefined,
     error: string,
-    updateDetails: Function,
-    showError: Function,
-    showLoading: Function
+    updateDetails: (value: string | null) => void,
+    showError: (err: string) => void,
+    showLoading: (state: "generating" | "scanning" | false) => void
 }
 
 
 function PopUpWithDetails({deduced, error, showError, imgSrc, updateDetails, showLoading}: PopUpProps){
-    const ingredients = Object.keys(deduced?.["ingredients"] ?? {} )
+    const ingredients = Object.keys(deduced?.ingredients ?? {} )
     const router = useRouter();
 
 
@@ -144,7 +153,7 @@ function PopUpWithDetails({deduced, error, showError, imgSrc, updateDetails, sho
                                 Try Again 
                             </Button>
                         </div>
-                    :
+                    : deduced ?
                         <>
                         <TextArea label="Details"
                             rows={2}
@@ -156,7 +165,7 @@ function PopUpWithDetails({deduced, error, showError, imgSrc, updateDetails, sho
                         </TextArea>
 
                         <div className="flex-grow overflow-y-auto gap-3">
-                            <DetailSection title="Meal Name" value={deduced["name"]} />
+                            <DetailSection title="Meal Name" value={deduced?.name} />
 
                             <DetailSection title="Ingredients" value={ ingredients.join("\n") } />
 
@@ -171,6 +180,8 @@ function PopUpWithDetails({deduced, error, showError, imgSrc, updateDetails, sho
                             </div>
                         </Button>
                         </>
+                    : 
+                    <></>
                 }
                 </div>
             </form>
@@ -181,7 +192,7 @@ function PopUpWithDetails({deduced, error, showError, imgSrc, updateDetails, sho
     async function handleSubmit(e?: React.FormEvent<HTMLFormElement>){
         e?.preventDefault?.();
 
-        if (!imgSrc && !deduced.details){
+        if ((!imgSrc && !deduced?.details || !deduced)){
             showError("You must set at least a description text or upload an image");
             showLoading(false);
             return
@@ -191,7 +202,6 @@ function PopUpWithDetails({deduced, error, showError, imgSrc, updateDetails, sho
         showLoading('generating');
 
         const res = await RecipeAction({
-            id: deduced.id,
             imgSrc, ingredients,
             mealName: deduced.name,
             details: deduced.details,
@@ -201,7 +211,7 @@ function PopUpWithDetails({deduced, error, showError, imgSrc, updateDetails, sho
             router.push(`/recipe/${res.id}`);
 
         } else {
-            showError(res.error);
+            if (res.error) showError(res.error);
             showLoading(false);
         }
         
@@ -237,11 +247,3 @@ const DetailSection = ({title, value}: {title: string; value: string}) => (
     <hr></hr>
     </>
 )
-
-const devDetails = [
-    {name: "FishRoll"},
-    {price: "#3,700"},
-    {ingredients: "Rice, Beans, Eba, Semo, Egusi"},
-    {OrderNow: "Savour, LaSpag, Chicken Rep"}
-
-]

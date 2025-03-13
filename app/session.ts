@@ -4,12 +4,11 @@
 
 import fs from 'fs';
 import path from 'path';
+import { RecipeResult, userSession } from './lib/definitions';
+import { UUID } from 'crypto';
 
-const sessions: any = {};
 
-interface userSession {
-    history: any[],
-}
+const sessions: { [key: string]: userSession | undefined} = {}
 
 
 export function getSession(userId: string): userSession {
@@ -25,7 +24,7 @@ export function getSession(userId: string): userSession {
 }
 
 
-export function addSeshHistory(userId :string, convoID: string, newData: any) {
+export function addSeshHistory(userId: string, convoID: UUID, newData: RecipeResult) {
     const userSession = getSession(userId);
     const userHistory = userSession.history;
 
@@ -56,7 +55,7 @@ export function backupSession(userID: string) {
 }
 
 
-export function restoreSession(userID: string) {
+export function restoreSession(userID: string):userSession {
     const sessionPath = path.join(process.cwd(), 'sessions', `${userID}.json`);
     if (!fs.existsSync(sessionPath)) {
         return {history: []};

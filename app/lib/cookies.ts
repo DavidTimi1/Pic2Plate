@@ -1,8 +1,9 @@
 "use server";
 
+import { UUID } from "crypto";
 import { cookies } from "next/headers";
 
-export async function setCookies(data: any) {
+export async function setCookies(data: {userID: UUID}) {
 
   const cookieJar = await cookies();
   cookieJar.set("session_data", JSON.stringify(data), {

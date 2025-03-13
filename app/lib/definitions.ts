@@ -1,22 +1,43 @@
+import { UUID } from "crypto";
 
 
-export type User = {
-    username: string;
-    session_id: string;
-    email: string;
+export interface Ingredient {
+    name: string,
+    quantity: string,
+    price?: string
 }
 
-export type Query = {
-    id: string;
-    user: User;
-    image_url: string;
-    details: string;
-    budget: string;
-    response: QueryResponse;
+export interface RecipeStep {
+    description: string, 
+    duration: string, 
+    notes?: string
 }
 
 
-type QueryResponse = {
-    text: string;
-    steps: Object;
+export interface RecipeResult {
+    mealName: string, 
+    ingredients: Ingredient[], 
+    recipe: RecipeStep[] 
 }
+
+
+export interface IngredientLocation {
+    [key: string]: number[][], // bounding box coordinates}
+}
+
+export interface Scanned {
+    name: string,
+    ingredients: IngredientLocation
+}
+
+
+export interface ConvoIitem {
+    id: UUID,
+    data: RecipeResult
+}
+
+
+export interface userSession {
+    history: ConvoIitem[],
+}
+

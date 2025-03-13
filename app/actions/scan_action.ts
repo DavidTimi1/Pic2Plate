@@ -5,12 +5,11 @@ import fs from "fs/promises";
 import path from "path";
 import { findIngredients } from "../lib/scan";
 import { cleanJSON } from "../lib/helpers";
+import { Scanned } from "../lib/definitions";
 
 
-export async function deduceFromImage(json: {imageSrc: string}): Promise<{ success: Boolean, 
-                                                                            data?: any, 
-                                                                            error?: string 
-                                                                        }> {
+
+export async function deduceFromImage(json: {imageSrc: string}) {
     const imageSrc = json.imageSrc;
 
     // check if file exists
@@ -23,7 +22,7 @@ export async function deduceFromImage(json: {imageSrc: string}): Promise<{ succe
     try {
         await fs.access(filePath);
 
-    } catch (error) {
+    } catch {
         return { success: false, error: "File not found" };
     }
 
@@ -32,7 +31,7 @@ export async function deduceFromImage(json: {imageSrc: string}): Promise<{ succe
 
     try {
         const ai_response = await findIngredients(image_data);
-        const scanned = cleanJSON(ai_response);
+        const scanned = cleanJSON(ai_response) as Scanned;
 
         return { success: true, data: scanned };
 

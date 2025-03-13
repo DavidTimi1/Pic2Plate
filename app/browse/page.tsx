@@ -1,5 +1,3 @@
-import Link from "next/link";
-import QueryForm from "../ui/prompt-form";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import ScanImage from "../ui/image-scan";
 

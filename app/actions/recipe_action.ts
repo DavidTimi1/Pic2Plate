@@ -12,7 +12,6 @@ interface RecipeActionProps {
     mealName: string | null,
     imgSrc: string | null,
     ingredients: string[],
-    id: string,
     details: string,
 }
 
@@ -47,7 +46,7 @@ export default async function RecipeAction({ingredients, imgSrc, mealName, detai
 
 
 async function convoHistory(imgSrc: string | null, prevJSON: string){
-    let history = [];
+    const history = [];
 
     // check if file exists
     if (imgSrc){

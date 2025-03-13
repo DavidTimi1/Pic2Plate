@@ -1,13 +1,13 @@
 import { randomUUID } from "crypto";
 import { getCookies, setCookies } from "./cookies";
+import { GenerateContentResult } from "@google/generative-ai";
 
 
 
 
-export function cleanJSON(generatedContent: any) {
+export function cleanJSON(generatedContent: GenerateContentResult) {
     // get the deduced info from the generated content
-    const deduced_info = generatedContent.response.text();    
-    console.log(deduced_info)
+    const deduced_info = generatedContent.response.text();
 
     // parse the deduced info from first {  to last }
     const start = deduced_info.indexOf("{");

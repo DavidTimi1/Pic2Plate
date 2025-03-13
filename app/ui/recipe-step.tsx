@@ -4,13 +4,13 @@ import { ArrowLeftIcon, ArrowRightIcon } from "@heroicons/react/24/outline"
 
 
 interface StepItemProps {
-    index: number,
+    index?: number,
     description: string,
     duration: string,
-    price?: string
+    notes?: string
 }
 
-function StepItem({index, description, duration, price}: StepItemProps){
+function StepItem({description, duration, notes}: StepItemProps){
 
 
     return (
@@ -24,9 +24,9 @@ function StepItem({index, description, duration, price}: StepItemProps){
                         {duration}
                     </span>
                     {
-                        price &&
+                        notes &&
                         <span className="rounded-2xl px-3 py-1 bg-gray-500 text-white0">
-                            {price}
+                            {notes}
                         </span>
                     }
                 </div>
@@ -40,10 +40,10 @@ function StepItem({index, description, duration, price}: StepItemProps){
 interface IngredientProps {
     name: string,
     quantity: string,
-    notes?: string
+    price?: string
 }
 
-function Ingredient({name, quantity, notes}: IngredientProps){
+function Ingredient({name, quantity, price}: IngredientProps){
 
 
     return (
@@ -59,9 +59,9 @@ function Ingredient({name, quantity, notes}: IngredientProps){
                 </span>
             </div>
             {
-                notes &&
+                price &&
                 <span className="rounded-2xl px-3 py-1 bg-gray-500 text-white0">
-                    {notes}
+                    {price}
                 </span>
             }
         </li>
@@ -71,7 +71,7 @@ function Ingredient({name, quantity, notes}: IngredientProps){
 
 
 interface RecipeCoverProps{
-    mealName: String,
+    mealName: string,
     ingredients: IngredientProps[],
 }
 
@@ -99,7 +99,7 @@ export function RecipeCover({mealName, ingredients}: RecipeCoverProps){
 
         <div className="sticky bottom-0 left-0 bg-gradient-to-b bg-blend-color backdrop-blur-xl p-4">
             <Button onClick={handleClick} className="pl-5 gap-2">
-                <span> Let's Cook </span>
+                <span> Let&apos;s Cook </span>
                 <ArrowRightIcon className="h-6 w-6" />
             </Button>
         </div>

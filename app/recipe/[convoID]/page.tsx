@@ -3,17 +3,18 @@
 
 import { useEffect, useState } from "react";
 import ConvoDetails from "../../actions/retrieve_recipe_action";
-import { useParams, useSearchParams } from "next/navigation";
+import { ReadonlyURLSearchParams, useParams, useSearchParams } from "next/navigation";
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
 import RecipeSteps, { RecipeCover } from "@/app/ui/recipe-step";
+import { RecipeResult } from "@/app/lib/definitions";
 
 
 
 export default function RecipeView() {
-    const [recipe, setRecipe] = useState<any>();
-    const recipeSteps = recipe?.recipe
+    const [recipe, setRecipe] = useState<RecipeResult | {recipe: undefined}>();
+    const recipeSteps = recipe?.recipe;
     
-    const currentStep = getStepIndex();
+    const currentStep = getStepIndex( useSearchParams() );
 
     // get the varaiable in the url path
     const { convoID } = useParams();
@@ -32,11 +33,11 @@ export default function RecipeView() {
 
             } else {
                 console.log(response.error);
-                setRecipe({});
+                setRecipe({recipe: undefined});
             }
         })
         
-    }, []);
+    }, [convoID]);
 
 
 
@@ -44,9 +45,9 @@ export default function RecipeView() {
         <div className="w-full min-h-full flex flex-col gap-10 items-center justify-center overflow-y-auto py-10 px-3">
             {
                 recipe ?
-                    recipeSteps?
+                    recipeSteps?.length?
                         currentStep?
-                            <RecipeSteps {...recipe} />
+                            <RecipeSteps {...recipe}  />
                         :
                             <RecipeCover {...recipe} />
 
@@ -64,9 +65,9 @@ export default function RecipeView() {
         </div>
     )
 
-    function getStepIndex(){
-        let stepQuery = useSearchParams().get("step") ?? '';
-        let stepIndex = parseInt(stepQuery);
+    function getStepIndex(searchParams: ReadonlyURLSearchParams){
+        const stepQuery = searchParams.get("step") ?? '';
+        const stepIndex = parseInt(stepQuery);
         return stepIndex
     }
 }

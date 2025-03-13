@@ -88,34 +88,51 @@ export default function ImageUploadForm() {
 
     function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
         const { target: { files } } = e;
-        files?.[0] && setImage(files[0])
+        if (files?.[0]) setImage(files[0]);
     }
 
     function handleDragLeave(e: React.DragEvent<HTMLLabelElement>) {
         e.preventDefault();
-        dropzoneRef.current && dropzoneRef.current.classList.remove("border-gray-700", "bg-gray-400")
+        if (dropzoneRef.current) dropzoneRef.current.classList.remove("border-gray-700", "bg-gray-400");
     }
 
     function handleDragOver(e: React.DragEvent<HTMLLabelElement>) {
         e.preventDefault()
-        dropzoneRef.current && dropzoneRef.current.classList.add("border-gray-700", "bg-gray-400")
+        if (dropzoneRef.current) dropzoneRef.current.classList.add("border-gray-700", "bg-gray-400");
     }
 
     function handleDrop(e: React.DragEvent<HTMLLabelElement>) {
         handleDragLeave(e);
 
         const files = e.dataTransfer.files;
-        files?.[0] && setImage(files[0])
+        if (files?.[0]) setImage(files[0]);
     }
 
-    async function handleBtnClick(e: React.MouseEvent<HTMLButtonElement>) {
+    async function handleBtnClick() {
         const formData = new FormData();
         console.log("Uploading image...");
+        // const uploadUrl = "/api/upload";
 
         if (!image) return
 
         setLoading(true);
         formData.append("image", image as Blob);
+
+        // axios.post(uploadUrl, formData)
+        // .then( res => {
+        //     const data :any = res.data;
+
+        //     if (data.success && data.url) {
+        //         console.log("Upload successful!");
+        //         // Redirect to the next page
+        //         router.push(`${nextRoute}?image=${data.url}`);
+    
+        //     } else {
+        //         setError(data.error || "Failed to upload image");
+        //         console.error(data.error);
+        //         setLoading(false);
+        //     }
+        // })
     
         const res = await uploadImageAction(formData);
         if (res.success && res.url) {

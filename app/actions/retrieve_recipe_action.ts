@@ -8,8 +8,7 @@ export default async function ConvoDetails( {id}: {id: string} ) {
     const userID = await getUserID();
 
     const fullHistory = getSeshHistory(userID);
-    console.log(fullHistory)
-    const convoHistories = fullHistory.filter((convo: any) => convo.id === id);
+    const convoHistories = fullHistory.filter((convo) => convo.id === id);
 
     if (!convoHistories.length) {
         return {
