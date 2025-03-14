@@ -1,5 +1,6 @@
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
-import ScanImage from "../ui/image-scan";
+import ScanImage, { LoadingPage } from "../ui/image-scan";
+import { Suspense } from "react";
 
 
 export default function Query(){
@@ -15,8 +16,9 @@ export default function Query(){
                 </a>
             </div>
 
-            <ScanImage />
-
+            <Suspense fallback={<LoadingPage />}>
+                <ScanImage />
+            </Suspense>
         </div>
     )
     
