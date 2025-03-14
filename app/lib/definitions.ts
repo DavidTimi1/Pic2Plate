@@ -20,6 +20,10 @@ export interface RecipeResult {
     recipe: RecipeStep[] 
 }
 
+export interface HistoryItemData extends RecipeResult {
+    imgSrc?: string
+}
+
 
 export interface IngredientLocation {
     [key: string]: number[][], // bounding box coordinates}
@@ -31,13 +35,13 @@ export interface Scanned {
 }
 
 
-export interface ConvoIitem {
+export interface ConvoItem {
     id: UUID,
-    data: RecipeResult
+    data: HistoryItemData
 }
 
 
 export interface userSession {
-    history: ConvoIitem[],
+    history: ConvoItem[],
 }
 

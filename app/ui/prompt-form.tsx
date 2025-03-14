@@ -3,8 +3,8 @@
 import { useRef, useState } from "react";
 import { ArrowRightIcon, PhotoIcon, TrashIcon } from "@heroicons/react/24/outline";
 import Button from "./button";
-import { uploadImageAction } from "../actions/upload_action";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 
 
 export default function ImageUploadForm() {
@@ -111,38 +111,31 @@ export default function ImageUploadForm() {
     async function handleBtnClick() {
         const formData = new FormData();
         console.log("Uploading image...");
-        // const uploadUrl = "/api/upload";
+        const uploadUrl = "/api/upload";
 
         if (!image) return
 
         setLoading(true);
         formData.append("image", image as Blob);
 
-        // axios.post(uploadUrl, formData)
-        // .then( res => {
-        //     const data :any = res.data;
+        axios.post(uploadUrl, formData)
+        .then( res => {
+            const data = res.data;
 
-        //     if (data.success && data.url) {
-        //         console.log("Upload successful!");
-        //         // Redirect to the next page
-        //         router.push(`${nextRoute}?image=${data.url}`);
+            if (data.message && data.url) {
+                console.log("Upload successful!");
+                // Redirect to the next page
+                router.push(`${nextRoute}?image=${data.url}`);
     
-        //     } else {
-        //         setError(data.error || "Failed to upload image");
-        //         console.error(data.error);
-        //         setLoading(false);
-        //     }
-        // })
-    
-        const res = await uploadImageAction(formData);
-        if (res.success && res.url) {
-            console.log("Upload successful!");
-            // Redirect to the next page
-            router.push(`${nextRoute}?image=${res.url}`);
-
-        } else {
-            setError(res.error || "Failed to upload image");
-            console.error(res.error);
+            } else {
+                showError("An error occured")
+            }
+        })
+        .catch(showError)
+        
+        function showError(err: string){
+            setError("Failed to upload image");
+            console.log(err);
             setLoading(false);
         }
     }

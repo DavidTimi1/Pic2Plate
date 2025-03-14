@@ -10,7 +10,7 @@ import Button from "./button";
 import RecipeAction from "../actions/recipe_action";
 import { deduceFromImage } from "../actions/scan_action";
 import { useRouter, useSearchParams } from "next/navigation";
-import { IngredientLocation, Scanned } from "../lib/definitions";
+import { IngredientLocation } from "../lib/definitions";
 
 
 

@@ -11,8 +11,8 @@ export default async function getUserSessionHistory(){
         const userHistory = getSeshHistory(userID)
 
         const truncHistory = userHistory.map( convo => {
-            const {id, imgSrc, mealName} = convo;
-            return {id, imgSrc, mealName}
+            const {imgSrc, mealName} = convo.data;
+            return {id: convo.id, imgSrc, mealName}
         })
 
         return {success: true, data: truncHistory}
