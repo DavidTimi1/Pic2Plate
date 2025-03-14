@@ -1,109 +1,117 @@
 import Image from "next/image";
-import Button from "./ui/button";
 import LinkAsButton from "./ui/links";
 
 export default function Home() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <LinkAsButton>
-            Howdy Neighbors
-          </LinkAsButton>
-          <Button deEmphasize={true}>
-            Looking good!!!
-          </Button>
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="w-full h-full" >
+      <div className="w-full h-screen absolute top-0 left-0 bg-no-repeat bg-cover bg-center blur-lg brightness-50" style={{backgroundImage: "url(/images/hero.webp)"}}>
+      </div>
+
+
+      <main className="flex flex-col h-screen justify-center md:flex-row items-center w-full p-10 gap-10">
+        <div className="w-full">
+          <Image
+            src="/images/hero.webp"
+            alt="Delicious meal"
+            width={500}
+            height={300}
+            className="rounded-lg shadow-lg max-w-full"
+          />
         </div>
+        
+        <div className="flex flex-col gap-5 items-center md:justify-start p-4 w-full ">
+          <header className="text-center my-8">
+            <h1 className="text-5xl font-bold">Pic2Plate</h1>
+            <p className="text-xl text-gray-300 mt-4">Take a picture of your meal and get the recipe instantly!</p>
+          </header>
+
+          <div className="w-full flex flex-col sm:flex-col gap-5 max-w-xl">
+            <LinkAsButton href={"/browse/upload"} className="w-full text-white shadow-md">
+              Upload Picture
+            </LinkAsButton>
+
+            <LinkAsButton href="/browse" deEmphasize className="w-full text-white shadow-md">
+              Generate Recipe from text
+            </LinkAsButton>
+          </div>
+        </div>
+
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+
+      <section className="my-12 min-h-screen p-10 w-full">
+        <h2 className="text-3xl font-bold text-center">How It Works</h2>
+        <div className="flex flex-col justify-center items-center mt-8 gap-5 w-full md:w-2/3 mx-auto">
+          <div className="w-full flex flex-col gap-3 flex-shrink-0 items-center md:flex-row p-4">
+            <Image
+              src="/images/step1.webp"
+              alt="Step 1"
+              width={300}
+              height={200}
+              className="rounded-lg shadow-lg"
+            />
+            <div className="flex-shrink-0">
+              <h3 className="text-xl font-semibold text-center mt-4">Step 1</h3>
+              <p className="text-center text-gray-400">Take a picture of your meal.</p>
+            </div>
+          </div>
+          <div className="w-full flex flex-col gap-3 items-center md:flex-row-reverse p-4">
+            <Image
+              src="/images/step2.webp"
+              alt="Step 2"
+              width={300}
+              height={200}
+              className="rounded-lg shadow-lg"
+            />
+            <div className="flex-shrink-0">
+            <h3 className="text-xl font-semibold text-center mt-4">Step 2</h3>
+            <p className="text-center text-gray-400">Upload the picture to our website.</p>
+            </div>
+          </div>
+          <div className="w-full flex flex-col flex-shrink-0 gap-3 items-center md:flex-row p-4">
+            <Image
+              src="/images/step3.webp"
+              alt="Step 3"
+              width={300}
+              height={200}
+              className="rounded-lg shadow-lg"
+            />
+            
+            <div className="flex-shrink-0">
+            <h3 className="text-xl font-semibold text-center mt-4">Step 3</h3>
+            <p className="text-center text-gray-400">Get the recipe instantly!</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="my-12 p-10">
+        <h2 className="text-3xl font-bold text-center">Testimonials</h2>
+        <div className="flex flex-wrap justify-center mt-8">
+          <div className="w-full md:w-1/2 p-4">
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <p className="text-gray-400">"Pic2Plate is amazing! I love how easy it is to use and the recipes are always spot on."</p>
+              <p className="text-right text-gray-800 font-semibold mt-4">- Jane Doe</p>
+            </div>
+          </div>
+          <div className="w-full md:w-1/2 p-4">
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <p className="text-gray-400">"A game changer for food enthusiasts. Highly recommend Pic2Plate!"</p>
+              <p className="text-right text-gray-800 font-semibold mt-4">- John Smith</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer className="text-center mt-12 flex flex-col">
+        <p className="text-gray-400"> &copy; {new Date().getFullYear()} Pic2Plate. All rights reserved. </p>
+        <span> Made with <a href={githubLink} target="_blank" className="text-pink-800 text-lg underline hover:text-gray-200"> ❤ by TimiDev </a> </span>
+       
       </footer>
     </div>
   );
 }
+
+
+
+const githubLink = "https://github.com/DavidTimi1"

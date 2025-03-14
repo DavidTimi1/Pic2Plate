@@ -239,7 +239,7 @@ function PopUpWithDetails({deduced, error, showError, imgSrc, updateDetails, sho
 const DetailSection = ({title, value}: {title: string; value: string}) => (
     <>
     <div className="w-full flex flex-col gap-1">
-        <small className="text-gray-400"> {title} </small>
+        <small className="text-gray-200"> {title} </small>
         <p className="text-white">
             {value}
         </p>

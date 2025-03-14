@@ -13,7 +13,7 @@ export default function UploadLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="w-full h-full px-3 md:px-10">
+    <div className="w-full h-full">
         {children}
     </div>
   );
