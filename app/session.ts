@@ -48,15 +48,17 @@ export function backupSession(userID: string) {
 
     //     fs.writeFileSync(sessionPath, sessionJSON, 'utf8');
     // });
+    const sessionDir = path.join(process.cwd(), "tmp/sessions");
+    fs.mkdirSync(sessionDir, { recursive: true });
     
-    const sessionPath = path.join(process.cwd(), 'sessions', `${userID}.json`);
+    const sessionPath = path.join(sessionDir, `${userID}.json`);
     const sessionJSON = JSON.stringify(getSession(userID));
     fs.writeFileSync(sessionPath, sessionJSON, 'utf8');
 }
 
 
 export function restoreSession(userID: string):userSession {
-    const sessionPath = path.join(process.cwd(), 'sessions', `${userID}.json`);
+    const sessionPath = path.join(process.cwd(), 'tmp/sessions', `${userID}.json`);
     if (!fs.existsSync(sessionPath)) {
         return {history: []};
     }
