@@ -22,7 +22,7 @@ export async function deduceFromImage(json: { imageSrc: string, tmpSrc: string }
     return { success: false, error: "No filepath indicated" };
   }
 
-  const filePath = path.join("/var/", `uploads_${localFileName}`);
+  const filePath = path.join("/tmp/", `uploads_${localFileName}`);
 
   try {
     await fs.access(filePath);

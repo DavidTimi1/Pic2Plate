@@ -56,7 +56,7 @@ export async function importExternalImage(url: string): Promise<string | null> {
       // Move file to the desired location
       const ext = ".jpg";
       const newFileName = `${randomUUID()}${ext}`;
-      const filePath = path.join("/var/", `uploads_${newFileName}`);
+      const filePath = path.join("/tmp/", `uploads_${newFileName}`);
   
       await fs.writeFile(filePath, buffer);
   
