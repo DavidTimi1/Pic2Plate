@@ -40,7 +40,7 @@ export function TextArea({label, placeholder, children, ...props}: TextAreaProps
             <small className="">
                 {label}
             </small>
-            <textarea {...props} className={`w-full border-none outline-none rounded-xl`}
+            <textarea {...props} className={`w-full border-none outline-none rounded-xl p-3`}
                 placeholder={placeholder}>
             </textarea>
             <small className="">
