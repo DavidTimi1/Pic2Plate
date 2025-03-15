@@ -56,24 +56,33 @@ async function convoHistory(tmpFile: string, imgSrc: string | null, prevJSON: st
         localFileName = await importExternalImage(imgSrc) ?? "";
 
         if (!localFileName)
-        return { success: false, error: "No filepath indicated" };
+            return [];
     }
 
+
     if (imgSrc){
-        const filePath = path.join(TEMPDIR, `uploads_${localFileName}`);
+        let filePath = path.join(TEMPDIR, `uploads_${localFileName}`);
+        let image_blob;
 
         try {
-            await fs.access(filePath);
+            image_blob = await fs.readFile(filePath);
 
         } catch (error) {
-            console.log(error)
+            // check if file exists
+            localFileName = await importExternalImage(imgSrc) ?? "";
+        
+            if (!localFileName)
+              return [];
+        
+            filePath = path.join(TEMPDIR, `uploads_${localFileName}`);
+            
+            image_blob = await fs.readFile(filePath);
 
         } finally {
-            const image_blob = await fs.readFile(filePath);
             
             const filePart = {
                 inlineData: {
-                    data: image_blob.toString("base64"),
+                    data: image_blob?.toString?.("base64"),
                     mimeType: "image/jpeg",
                 },
             };
