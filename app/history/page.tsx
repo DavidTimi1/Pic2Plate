@@ -1,6 +1,7 @@
-import Link from "next/link";
+
 import getUserSessionHistory from "../actions/history_actions"
 import { HistoryConvoItem } from "../ui/convo-history";
+import LinkAsButton from "../ui/links";
 
 
 export default async function History(){
@@ -24,13 +25,15 @@ export default async function History(){
                                 item => <HistoryConvoItem key={item.id}  {...item} />
                             )
                             :
-                            <div className="">
-                                You have not generated any recipes yet <br></br>
-                                Click here to create your own recipe
+                            <div className="text-center">
+                                <p>
+                                    You have not generated any recipes yet <br></br>
+                                    Click here to create your own recipe
+                                </p>
                                 
-                                <Link href="/browse/upload" className="text-pink-600">
+                                <LinkAsButton href="/browse/upload" className="text-pink-600">
                                     Create your Recipe 💪
-                                </Link>
+                                </LinkAsButton>
                             </div>
 
                     : 
@@ -42,9 +45,9 @@ export default async function History(){
                                 You can get back to cooking 🔥
                             </p>
 
-                            <Link href="/browse/upload" className="text-pink-600">
+                            <LinkAsButton href="/browse/upload" className="text-pink-600">
                                 Create your Recipe 💪
-                            </Link>
+                            </LinkAsButton>
                         </div>
                 }
             </div>

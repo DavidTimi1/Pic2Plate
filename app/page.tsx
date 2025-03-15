@@ -23,7 +23,7 @@ export default function Home() {
         <div className="flex flex-col gap-5 items-center md:justify-start p-4 w-full ">
           <header className="text-center my-8">
             <h1 className="text-5xl font-bold">Pic2Plate</h1>
-            <p className="text-xl text-gray-300 mt-4">Take a picture of your meal and get the recipe instantly!</p>
+            <p className="text-xl text-gray-300 mt-4">Take a picture of a meal or describe it and get the recipe instantly!</p>
           </header>
 
           <div className="w-full flex flex-col sm:flex-col gap-5 max-w-xl">
@@ -52,7 +52,7 @@ export default function Home() {
             />
             <div className="flex-shrink-0">
               <h3 className="text-xl font-semibold text-center mt-4">Step 1</h3>
-              <p className="text-center text-gray-400">Take a picture of your meal.</p>
+              <p className="text-center text-gray-400">Take a picture of a meal.</p>
             </div>
           </div>
           <div className="w-full flex flex-col gap-3 items-center md:flex-row-reverse p-4">

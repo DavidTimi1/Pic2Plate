@@ -67,7 +67,7 @@ async function convoHistory(tmpFile: string, imgSrc: string | null, prevJSON: st
         try {
             image_blob = await fs.readFile(filePath);
 
-        } catch (error) {
+        } catch {
             // check if file exists
             localFileName = await importExternalImage(imgSrc) ?? "";
         

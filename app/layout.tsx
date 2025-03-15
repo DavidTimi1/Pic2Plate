@@ -15,22 +15,23 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Pic2Plate",
-  description: "Create ",
+  description: "Take a picture of a meal or describe it and get the recipe instantly!",
   openGraph: {
     type: "website",
-    url: "https://example.com",
-    title: "My Website",
-    description: "My Website Description",
+    url: "https://pic2plate-tau.vercel.app",
+    title: "Pic2Plate",
+    description: "Take a picture of a meal or describe it and get the recipe instantly!",
     siteName: "Pic2Plate",
     images: [{
-      url: "https://example.com/og.png",
+      url: "https://pic2plate-tau.vercel.app/images/hero.webp",
     }],
   },
   twitter: { 
-    card: "summary_large_image", 
-    site: "@site", 
+    card: "summary_large_image",
+    title: "Pic2Plate",
+    site: "@Pic2Plate", 
     creator: "@DavidTimi_1", 
-    images: "https://example.com/og.png" 
+    images: "https://pic2plate-tau.vercel.app/images/hero.webp" 
   },
   authors: [{ name: "TimiDev", url: "https://github.com/DavidTimi" }],
 };
