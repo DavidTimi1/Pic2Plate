@@ -1,3 +1,7 @@
+
+"use client"
+
+import { CldImage } from "next-cloudinary";
 import Link from "next/link"
 
 
@@ -18,7 +22,17 @@ export function HistoryConvoItem({id, mealName, imgSrc}: ConvoItemProps){
                 <div className="h-3/4 aspect-square bg-gray-700 rounded-xl">
                     {
                         imgSrc &&
-                        <img src={imgSrc} alt={alt} className="w-full h-full object-cover" />
+                        <CldImage
+                            alt={alt}
+                          src={imgSrc} // Use this sample image or upload your own via the Media Explorer
+                          width="500" // Transform the image: auto-crop to square aspect_ratio
+                          height="500"
+                          crop={{
+                            type: 'auto',
+                            source: true
+                          }}
+                           className="w-full h-full object-cover object-center rounded-xl"
+                        />
                     }
                 </div>
                 <div className="text-2xl">

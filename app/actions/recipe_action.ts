@@ -7,6 +7,7 @@ import { getRecipe } from "../lib/recipe";
 import { cleanJSON, getUserID, importExternalImage } from "../lib/helpers";
 import { randomUUID } from "crypto";
 import { addSeshHistory } from "../session";
+import { TEMPDIR } from "@/next.config";
 
 interface RecipeActionProps {
     mealName: string | null,
@@ -59,7 +60,7 @@ async function convoHistory(tmpFile: string, imgSrc: string | null, prevJSON: st
     }
 
     if (imgSrc){
-        const filePath = path.join("/tmp/", `uploads_${localFileName}`);
+        const filePath = path.join(TEMPDIR, `uploads_${localFileName}`);
 
         try {
             await fs.access(filePath);

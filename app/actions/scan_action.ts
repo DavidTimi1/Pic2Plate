@@ -6,13 +6,14 @@ import path from "path";
 import { findIngredients } from "../lib/scan";
 import { cleanJSON, importExternalImage } from "../lib/helpers";
 import { Scanned } from "../lib/definitions";
+import { TEMPDIR } from "@/next.config";
 
 
 
 export async function deduceFromImage(json: { imageSrc: string, tmpSrc: string }) {
   const {imageSrc, tmpSrc} = json;
 
-  let localFileName = tmpSrc;
+  let localFileName = tmpSrc, image_blob;
 
   // check if file exists
   if (!localFileName) {
@@ -22,16 +23,17 @@ export async function deduceFromImage(json: { imageSrc: string, tmpSrc: string }
     return { success: false, error: "No filepath indicated" };
   }
 
-  const filePath = path.join("/tmp/", `uploads_${localFileName}`);
+  const filePath = path.join(TEMPDIR, `uploads_${localFileName}`);
+
 
   try {
-    await fs.access(filePath);
+    image_blob = await fs.readFile(filePath);
 
   } catch {
     return { success: false, error: "File not found" };
   }
 
-  const image_blob = await fs.readFile(filePath);
+
   const image_data = image_blob.toString("base64");
 
   try {

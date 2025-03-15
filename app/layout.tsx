@@ -47,7 +47,9 @@ export default function RootLayout({
       >
         <div className="w-full h-full">
           <Navbar />
+          <div className="w-full h-full py-8">
           {children}
+        </div>
         </div>
       </body>
     </html>

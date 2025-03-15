@@ -4,6 +4,7 @@ import { GenerateContentResult } from "@google/generative-ai";
 import axios from "axios";
 import path from "path";
 import fs from "fs/promises";
+import { TEMPDIR } from "@/next.config";
 
 
 
@@ -56,7 +57,7 @@ export async function importExternalImage(url: string): Promise<string | null> {
       // Move file to the desired location
       const ext = ".jpg";
       const newFileName = `${randomUUID()}${ext}`;
-      const filePath = path.join("/tmp/", `uploads_${newFileName}`);
+      const filePath = path.join(TEMPDIR, `uploads_${newFileName}`);
   
       await fs.writeFile(filePath, buffer);
   

@@ -22,3 +22,18 @@ export default async function getUserSessionHistory(){
     }
     
 }
+
+
+export async function hasSessionHistory(){
+    const userID = await getUserID();
+
+    try {
+        const userHistory = getSeshHistory(userID)
+        return {success: true, data: Boolean(userHistory.length)}
+
+    } catch (err){
+
+        return {success: false, error: err}
+    }
+    
+}

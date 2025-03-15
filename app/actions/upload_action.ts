@@ -4,6 +4,7 @@
 import fs from "fs/promises";
 import path from "path";
 import { randomUUID } from "crypto";
+import { TEMPDIR } from "@/next.config";
 
 
 export async function uploadImageAction(formData: FormData): Promise<{ success: boolean; url?: string; error?: string}> {
@@ -12,7 +13,7 @@ export async function uploadImageAction(formData: FormData): Promise<{ success: 
 
     const ext = path.extname(file.name);
     const newFileName = `${randomUUID()}${ext}`;
-    const filePath = path.join("/tmp/", `uploads_${newFileName}`);
+    const filePath = path.join(TEMPDIR, `uploads_${newFileName}`);
 
     try {
         //

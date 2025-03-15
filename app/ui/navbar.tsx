@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import { ClockIcon } from '@heroicons/react/24/outline';
 
 
 const Navbar: React.FC = () => {
@@ -9,7 +10,10 @@ const Navbar: React.FC = () => {
                 <div className=" font-bold text-gray-300 hover:text-gray-100">
                     <Link href="/"> Pic2Plate </Link>
                 </div>
-                <div>
+                <div className="flex gap-5">
+                    <Link href="/history" className="text-gray-400 hover:text-gray-200">
+                        <ClockIcon className="w-8 h-8" />
+                    </Link>
                     <Link href="https://github.com/DavidTimi1/Pic2Plate" target='_blank'>
                         <svg
                             xmlns="http://www.w3.org/2000/svg"

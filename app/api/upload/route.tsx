@@ -3,6 +3,7 @@ import fs from "fs/promises";
 import path from "path";
 import { randomUUID } from "crypto";
 import cloudinary from "@/app/lib/cloudinary";
+import { TEMPDIR } from "@/next.config";
 
 
 export async function POST(req: NextRequest) {
@@ -21,7 +22,7 @@ export async function POST(req: NextRequest) {
     // Move file to the desired location
     const ext = ".jpg";
     const newFileName = `${randomUUID()}${ext}`;
-    const filePath = path.join("/tmp/", `uploads_${newFileName}`);
+    const filePath = path.join(TEMPDIR, `uploads_${newFileName}`);
 
     await fs.writeFile(filePath, buffer);
     
