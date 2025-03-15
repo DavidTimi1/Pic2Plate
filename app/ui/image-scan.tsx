@@ -9,8 +9,9 @@ import { ExclamationCircleIcon, SparklesIcon } from "@heroicons/react/24/outline
 import Button from "./button";
 import RecipeAction from "../actions/recipe_action";
 import { deduceFromImage } from "../actions/scan_action";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useParams, usePathname, useRouter, useSearchParams } from "next/navigation";
 import { IngredientLocation } from "../lib/definitions";
+import { CldImage } from "next-cloudinary";
 
 
 
@@ -38,7 +39,9 @@ export default function ScanImage(){
     useEffect(() => {
         if (!imgSrc) return;
 
-        deduceFromImage({imageSrc: imgSrc})
+        const tmpFile = window.location.hash.slice(1);
+
+        deduceFromImage({imageSrc: imgSrc, tmpSrc: tmpFile})
             .then(res => {
                 if (res.success && res.data){
                     setTimeout( 
@@ -66,7 +69,18 @@ export default function ScanImage(){
                 {
                     imgSrc ?
                         <>
-                        <img src={imgSrc} alt="" className="w-full h-full object-cover rounded-xl" />
+                        <CldImage
+                            alt=""
+                          src={imgSrc} // Use this sample image or upload your own via the Media Explorer
+                          width="500" // Transform the image: auto-crop to square aspect_ratio
+                          height="500"
+                          crop={{
+                            type: 'auto',
+                            source: true
+                          }}
+                           className="w-full h-full object-cover rounded-xl"
+                        />
+                        {/* <img src={imgSrc} alt="" className="w-full h-full object-cover rounded-xl" /> */}
                         { 
                             loading === "scanning" &&
                             <div className="w-full h-4 absolute bg-white blur-sm top-0 left-0 scan-beam"></div>
@@ -137,11 +151,11 @@ function PopUpWithDetails({deduced, error, showError, imgSrc, updateDetails, sho
 
     return (
         <div className="fixed top-0 left-0 w-full h-full bg-slate-300 bg-opacity-20">
-            <form onSubmit={handleSubmit} className="absolute bg-black flex items-center justify-center flex-col rounded-t-2xl py-2 w-full bottom-0 px-3 md:px-10 max-h-[min(700px,80vh)] min-h-60 overflow-hidden">
+            <form onSubmit={handleSubmit} className={`absolute bg-black flex items-center justify-center flex-col rounded-t-2xl py-2 w-full bottom-0 px-3 md:px-10 max-h-[min(700px,80vh)] ${ error? "min-h-60" : "min-h-96" } overflow-hidden`}>
                 <div className="w-full h-5">
                     <div className="mx-auto my-1 h-1 bg-white w-16 rounded-full"></div>
                 </div>
-                <div className="w-full flex justify-center flex-col gap-2 overflow-y-auto flex-grow">
+                <div className="w-full flex justify-center flex-col gap-5 overflow-y-auto flex-grow">
 
                 {
                     error ?
@@ -153,24 +167,38 @@ function PopUpWithDetails({deduced, error, showError, imgSrc, updateDetails, sho
                                 Try Again 
                             </Button>
                         </div>
-                    : deduced ?
-                        <>
+
+                    : 
+                    <>
+                    {
+                        deduced?.ingredients ?
+                            <>
+                            <TextArea label="Details"
+                                rows={2}
+                                placeholder="Meal name, your budget ..."
+                                value={deduced.details}
+                                onChange={(e) => updateDetails(e.target.value)}
+                            >
+                                Give more information about the meal for accurate response
+                            </TextArea>
+
+                            <div className="flex-grow overflow-y-auto gap-3">
+                                <DetailSection title="Meal Name" value={deduced?.name} />
+
+                                <DetailSection title="Ingredients" value={ ingredients.join("\n") } />
+
+                            </div>
+                            </>
+                        : 
                         <TextArea label="Details"
-                            rows={2}
+                            rows={4}
                             placeholder="Meal name, your budget ..."
-                            value={deduced.details}
+                            value={deduced?.details ?? ""}
                             onChange={(e) => updateDetails(e.target.value)}
                         >
-                            Give more information about the meal for accurate response
+                            Give a full description of the meal
                         </TextArea>
-
-                        <div className="flex-grow overflow-y-auto gap-3">
-                            <DetailSection title="Meal Name" value={deduced?.name} />
-
-                            <DetailSection title="Ingredients" value={ ingredients.join("\n") } />
-
-                        </div>
-                        
+                    }
                         <Button type="submit">
                             <div className="flex gap-2 items-center justify-center">
                                 <span>
@@ -179,9 +207,7 @@ function PopUpWithDetails({deduced, error, showError, imgSrc, updateDetails, sho
                                 <SparklesIcon className="h-6 w-6" />
                             </div>
                         </Button>
-                        </>
-                    : 
-                    <></>
+                    </>
                 }
                 </div>
             </form>

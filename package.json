@@ -13,9 +13,11 @@
     "@heroicons/react": "^2.2.0",
     "@prisma/client": "^6.4.1",
     "axios": "^1.7.9",
+    "cloudinary": "^2.6.0",
     "formidable": "^3.5.2",
     "next": "15.1.0",
     "next-auth": "^4.24.11",
+    "next-cloudinary": "^6.16.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
