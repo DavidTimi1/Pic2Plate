@@ -24,13 +24,13 @@ export function getSession(userId: string): userSession {
 }
 
 
-export function addSeshHistory(userId: string, convoID: UUID, newData: RecipeResult) {
+export function addSeshHistory(userId: string, convoID: UUID, newData: RecipeResult, imgSrc: string | null ) {
     const userSession = getSession(userId);
     const userHistory = userSession.history;
 
     userHistory.push({
         id: convoID,
-        data: newData,
+        data: {...newData, imgSrc: imgSrc ?? undefined},
     });
     backupSession(userId);
 }

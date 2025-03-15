@@ -4,19 +4,20 @@
 import fs from "fs/promises";
 import path from "path";
 import { getRecipe } from "../lib/recipe";
-import { cleanJSON, getUserID } from "../lib/helpers";
+import { cleanJSON, getUserID, importExternalImage } from "../lib/helpers";
 import { randomUUID } from "crypto";
 import { addSeshHistory } from "../session";
 
 interface RecipeActionProps {
     mealName: string | null,
     imgSrc: string | null,
+    tmpFile: string,
     ingredients: string[],
     details: string,
 }
 
 
-export default async function RecipeAction({ingredients, imgSrc, mealName, details}: RecipeActionProps){    
+export default async function RecipeAction({ingredients, imgSrc, mealName, details, tmpFile}: RecipeActionProps){    
     // Retrieve user ID
     const userID = await getUserID();
     const convoID = randomUUID();
@@ -26,13 +27,13 @@ export default async function RecipeAction({ingredients, imgSrc, mealName, detai
         mealName,
         ingredients,
     }
-    const chatHistory = await convoHistory(imgSrc, JSON.stringify(prevGenerated));
+    const chatHistory = await convoHistory(tmpFile, imgSrc, JSON.stringify(prevGenerated));
     
     try {
         const ai_response = await getRecipe(details, chatHistory);
         const recipe = cleanJSON(ai_response);
 
-        addSeshHistory(userID, convoID, recipe);
+        addSeshHistory(userID, convoID, recipe, imgSrc);
 
         return { success: true, id: convoID };
 
@@ -45,14 +46,20 @@ export default async function RecipeAction({ingredients, imgSrc, mealName, detai
 
 
 
-async function convoHistory(imgSrc: string | null, prevJSON: string){
+async function convoHistory(tmpFile: string, imgSrc: string | null, prevJSON: string){
     const history = [];
+    let localFileName = tmpFile;
 
     // check if file exists
-    if (imgSrc){
+    if (!localFileName && imgSrc) {
+        localFileName = await importExternalImage(imgSrc) ?? "";
 
-        const localLocation = imgSrc.split("/uploads")[1]
-        const filePath = path.join(process.cwd(), "tmp/uploads", localLocation);
+        if (!localFileName)
+        return { success: false, error: "No filepath indicated" };
+    }
+
+    if (imgSrc){
+        const filePath = path.join(process.cwd(), "tmp/uploads", localFileName);
 
         try {
             await fs.access(filePath);

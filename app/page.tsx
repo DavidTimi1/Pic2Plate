@@ -90,13 +90,13 @@ export default function Home() {
         <div className="flex flex-wrap justify-center mt-8">
           <div className="w-full md:w-1/2 p-4">
             <div className="bg-white p-6 rounded-lg shadow-md">
-              <p className="text-gray-400">"Pic2Plate is amazing! I love how easy it is to use and the recipes are always spot on."</p>
+              <p className="text-gray-400">&quot; Pic2Plate is amazing! I love how easy it is to use and the recipes are always spot on. &quot;</p>
               <p className="text-right text-gray-800 font-semibold mt-4">- Jane Doe</p>
             </div>
           </div>
           <div className="w-full md:w-1/2 p-4">
             <div className="bg-white p-6 rounded-lg shadow-md">
-              <p className="text-gray-400">"A game changer for food enthusiasts. Highly recommend Pic2Plate!"</p>
+              <p className="text-gray-400">&quot; A game changer for food enthusiasts. Highly recommend Pic2Plate! &quot;</p>
               <p className="text-right text-gray-800 font-semibold mt-4">- John Smith</p>
             </div>
           </div>

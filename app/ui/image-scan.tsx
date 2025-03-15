@@ -9,7 +9,7 @@ import { ExclamationCircleIcon, SparklesIcon } from "@heroicons/react/24/outline
 import Button from "./button";
 import RecipeAction from "../actions/recipe_action";
 import { deduceFromImage } from "../actions/scan_action";
-import { useParams, usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { IngredientLocation } from "../lib/definitions";
 import { CldImage } from "next-cloudinary";
 
@@ -145,7 +145,7 @@ interface PopUpProps {
 
 
 function PopUpWithDetails({deduced, error, showError, imgSrc, updateDetails, showLoading}: PopUpProps){
-    const ingredients = Object.keys(deduced?.ingredients ?? {} )
+    const ingredients = Object.keys(deduced?.ingredients ?? {} );
     const router = useRouter();
 
 
@@ -217,6 +217,7 @@ function PopUpWithDetails({deduced, error, showError, imgSrc, updateDetails, sho
     
     async function handleSubmit(e?: React.FormEvent<HTMLFormElement>){
         e?.preventDefault?.();
+        const tmpFile = window.location.hash.slice(1);
 
         if ((!imgSrc && !deduced?.details || !deduced)){
             showError("You must set at least a description text or upload an image");
@@ -228,7 +229,7 @@ function PopUpWithDetails({deduced, error, showError, imgSrc, updateDetails, sho
         showLoading('generating');
 
         const res = await RecipeAction({
-            imgSrc, ingredients,
+            imgSrc, ingredients, tmpFile,
             mealName: deduced.name,
             details: deduced.details,
         })
