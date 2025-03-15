@@ -59,7 +59,7 @@ async function convoHistory(tmpFile: string, imgSrc: string | null, prevJSON: st
     }
 
     if (imgSrc){
-        const filePath = path.join(process.cwd(), "tmp/uploads", localFileName);
+        const filePath = path.join("/var/", `uploads_${localFileName}`);
 
         try {
             await fs.access(filePath);

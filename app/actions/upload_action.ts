@@ -12,7 +12,7 @@ export async function uploadImageAction(formData: FormData): Promise<{ success: 
 
     const ext = path.extname(file.name);
     const newFileName = `${randomUUID()}${ext}`;
-    const filePath = path.join(process.cwd(), "tmp/uploads", newFileName);
+    const filePath = path.join("/var/", `uploads_${newFileName}`);
 
     try {
         //

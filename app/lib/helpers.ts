@@ -53,14 +53,10 @@ export async function importExternalImage(url: string): Promise<string | null> {
       // Convert Blob to Buffer
       const buffer = Buffer.from(response.data);
   
-      // Ensure upload directory exists
-      const uploadDir = path.join(process.cwd(), "tmp/uploads");
-      await fs.mkdir(uploadDir, { recursive: true });
-  
       // Move file to the desired location
       const ext = ".jpg";
       const newFileName = `${randomUUID()}${ext}`;
-      const filePath = path.join(uploadDir, newFileName);
+      const filePath = path.join("/var/", `uploads_${newFileName}`);
   
       await fs.writeFile(filePath, buffer);
   

@@ -42,23 +42,14 @@ export function getSeshHistory(userId: string) {
 
 
 export function backupSession(userID: string) {
-    // Object.keys(sessions).forEach((userId) => {
-    //     const sessionPath = path.join(process.cwd(), 'sessions', `${userId}.json`);
-    //     const sessionJSON = JSON.stringify(sessions[userId]);
-
-    //     fs.writeFileSync(sessionPath, sessionJSON, 'utf8');
-    // });
-    const sessionDir = path.join(process.cwd(), "tmp/sessions");
-    fs.mkdirSync(sessionDir, { recursive: true });
-    
-    const sessionPath = path.join(sessionDir, `${userID}.json`);
+    const sessionPath = path.join("/var/", `sessions_${userID}.json`);
     const sessionJSON = JSON.stringify(getSession(userID));
     fs.writeFileSync(sessionPath, sessionJSON, 'utf8');
 }
 
 
 export function restoreSession(userID: string):userSession {
-    const sessionPath = path.join(process.cwd(), 'tmp/sessions', `${userID}.json`);
+    const sessionPath = path.join("/var/", `sessions_${userID}.json`);
     if (!fs.existsSync(sessionPath)) {
         return {history: []};
     }
