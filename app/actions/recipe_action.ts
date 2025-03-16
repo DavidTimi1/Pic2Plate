@@ -6,8 +6,8 @@ import path from "path";
 import { getRecipe } from "../lib/recipe";
 import { cleanJSON, getUserID, importExternalImage } from "../lib/helpers";
 import { randomUUID } from "crypto";
-import { addSeshHistory } from "../session";
 import { TEMPDIR } from "@/next.config";
+import { addSeshHistory } from "../lib/session";
 
 interface RecipeActionProps {
     mealName: string | null,
@@ -29,19 +29,27 @@ export default async function RecipeAction({ingredients, imgSrc, mealName, detai
         ingredients,
     }
     const chatHistory = await convoHistory(tmpFile, imgSrc, JSON.stringify(prevGenerated));
+
+    let recipe;
     
     try {
         const ai_response = await getRecipe(details, chatHistory);
-        const recipe = cleanJSON(ai_response);
-
-        addSeshHistory(userID, convoID, recipe, imgSrc);
-
-        return { success: true, id: convoID };
+        recipe = cleanJSON(ai_response);
 
     } catch(err){
         console.log(err)
         return { success: false, error: "Error prompting AI model" };
 
+    }
+
+    try {
+        await addSeshHistory(userID, convoID, recipe, imgSrc);
+
+        return { success: true, id: convoID };
+
+    } catch(err) {
+        console.error(err)
+        return { success: false, error: "Error connecting with DB" };
     }
 }
 

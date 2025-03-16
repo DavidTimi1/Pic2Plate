@@ -12,6 +12,7 @@
     "@google/generative-ai": "^0.21.0",
     "@heroicons/react": "^2.2.0",
     "@prisma/client": "^6.4.1",
+    "@vercel/postgres": "^0.10.0",
     "axios": "^1.7.9",
     "cloudinary": "^2.6.0",
     "formidable": "^3.5.2",

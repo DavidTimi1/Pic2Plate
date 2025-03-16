@@ -1,5 +1,5 @@
 import { getUserID } from "../lib/helpers";
-import { getSeshHistory } from "../session";
+import { getSeshHistory } from "../lib/session";
 
 
 
@@ -7,7 +7,7 @@ export default async function getUserSessionHistory(){
     const userID = await getUserID();
 
     try {
-        const userHistory = getSeshHistory(userID)
+        const userHistory = await getSeshHistory(userID)
 
         const truncHistory = userHistory.map( convo => {
             const {imgSrc, mealName} = convo.data;
@@ -28,7 +28,7 @@ export async function hasSessionHistory(){
     const userID = await getUserID();
 
     try {
-        const userHistory = getSeshHistory(userID)
+        const userHistory = await getSeshHistory(userID)
         return {success: true, data: Boolean(userHistory.length)}
 
     } catch (err){

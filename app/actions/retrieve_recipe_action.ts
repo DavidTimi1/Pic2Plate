@@ -1,13 +1,25 @@
 "use server";
 
-import { getSeshHistory } from "../session";
 import { getUserID } from "../lib/helpers";
+import { getSeshHistory } from "../lib/session";
 
 
 export default async function ConvoDetails( {id}: {id: string} ) {
     const userID = await getUserID();
 
-    const fullHistory = getSeshHistory(userID);
+    let fullHistory;
+
+    try {
+        fullHistory = await getSeshHistory(userID);
+
+    } catch (err) {
+        console.error(err)
+        return {
+            success: false,
+            error: "Error connecting with db",
+        }
+    }
+
     const convoHistories = fullHistory.filter((convo) => convo.id === id);
 
     if (!convoHistories.length) {
