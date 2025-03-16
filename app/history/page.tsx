@@ -1,4 +1,5 @@
 
+import { ClockIcon } from "@heroicons/react/24/outline";
 import getUserSessionHistory from "../actions/history_actions"
 import { HistoryConvoItem } from "../ui/convo-history";
 import LinkAsButton from "../ui/links";
@@ -11,8 +12,9 @@ export default async function History(){
 
     return (
         <div className="w-full min-h-full flex flex-col gap-10 items-center justify-center overflow-y-auto py-10 px-3">
-        <h1 className="p-4 text-3xl text-center font-bold">
-            Histories
+        <h1 className="p-4 text-3xl text-center font-bold flex items-center gap-2">
+            <ClockIcon className="h-8 w-8" />
+            History
         </h1>
 
             <div className="flex flex-col items-center justify-center w-full gap-5">
