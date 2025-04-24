@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="https://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+        <loc>https://pic2plate-tau.vercel.app/</loc>
+        <lastmod>2025-04-22</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>1.0</priority>
+    </url>
+    <url>
+        <loc>https://pic2plate-tau.vercel.app/browse</loc>
+        <lastmod>2025-04-22</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://pic2plate-tau.vercel.app/browse/upload</loc>
+        <lastmod>2025-04-22</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://pic2plate-tau.vercel.app/history</loc>
+        <lastmod>2025-04-22</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    </url>
+</urlset>

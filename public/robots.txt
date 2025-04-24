@@ -1,0 +1,3 @@
+User-agent: *
+Disallow: 
+Sitemap: https://pic2plate-tau.vercel.app/sitemap.xml
