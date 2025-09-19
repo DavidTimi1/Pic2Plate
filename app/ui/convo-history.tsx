@@ -18,7 +18,7 @@ export function HistoryConvoItem({ id, mealName, imgSrc }: ConvoItemProps) {
 
     return (
         <div className="w-full h-60  border-gray-800 rounded-xl">
-            <Link href={linkTo} className="w-full h-full hover:bg-pink-500 duration-300 flex gap-5 items-center rounded-xl">
+            <Link href={linkTo} className="w-full h-full hover:bg-primary duration-300 flex gap-5 items-center rounded-xl">
                 {/* image */}
                 <div className="h-3/4 aspect-square bg-gray-700 rounded-xl">
                     {

@@ -1,3 +1,5 @@
+"use server";
+
 import { getUserID } from "../lib/helpers";
 import { getSeshHistory } from "../lib/session";
 

@@ -28,16 +28,13 @@ export default function RecipeView() {
         ConvoDetails({id: convoID})
         .then((response) => {
             if (response.success) {
-                console.log(response.data);
                 setRecipe(response.data);
 
             } else {
-                console.log(response.error);
                 setRecipe({recipe: undefined});
             }
         })
         .catch(res => {
-            console.log(res.error);
             setRecipe({recipe: undefined});
         })
         
@@ -46,7 +43,7 @@ export default function RecipeView() {
 
 
     return (
-        <div className="w-full min-h-full flex flex-col gap-10 items-center justify-center overflow-y-auto py-10 px-3">
+        <div className="w-full min-h-full flex flex-col gap-5 items-center justify-center overflow-y-auto py-10 px-3">
             {
                 recipe ?
                     recipeSteps?.length?

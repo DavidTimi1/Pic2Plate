@@ -37,7 +37,6 @@ export default async function RecipeAction({ingredients, imgSrc, mealName, detai
         recipe = cleanJSON(ai_response);
 
     } catch(err){
-        console.log(err)
         return { success: false, error: "Error prompting AI model" };
 
     }

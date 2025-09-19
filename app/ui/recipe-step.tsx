@@ -1,156 +1,118 @@
-import { useRouter } from "next/navigation"
-import Button from "./button"
-import { ArrowLeftIcon, ArrowRightIcon } from "@heroicons/react/24/outline"
-
+import { useRouter } from "next/navigation";
+import Button from "./button";
+import { ArrowLeftIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
 
 interface StepItemProps {
-    index?: number,
-    description: string,
-    duration: string,
-    notes?: string
+  index?: number;
+  description: string;
+  duration: string;
+  notes?: string;
 }
 
-function StepItem({description, duration, notes}: StepItemProps){
-
-
-    return (
-        <li className="w-full text-xl flex flex-col list list-decimal">
-            <div className="flex flex-col align-center justify-center">
-                <span className=" p-2 text-gray-200">
-                    {description}
-                </span>
-                <div className="flex align-center justify-end gap-2">
-                    <span className="rounded-2xl px-3 py-1 bg-pink-500 text-white">
-                        {duration}
-                    </span>
-                    {
-                        notes &&
-                        <span className="rounded-2xl px-3 py-1 bg-gray-500 text-white0">
-                            {notes}
-                        </span>
-                    }
-                </div>
-            </div>
-        </li>
-    )
+function StepItem({ description, duration, notes }: StepItemProps) {
+  return (
+    <li className="w-full text-lg flex flex-col list-decimal space-y-2">
+      <div className="flex flex-col gap-2 p-4 rounded-md bg-primary-foreground backdrop-blur-md">
+        <span className="">{description}</span>
+        <div className="flex justify-end gap-2">
+          <span className="rounded-xl px-3 py-1 bg-primary text-sm">
+            {duration}
+          </span>
+          {notes && (
+            <span className="rounded-xl px-3 py-1 bg-gray-600 text-sm">
+              {notes}
+            </span>
+          )}
+        </div>
+      </div>
+    </li>
+  );
 }
-
-
 
 interface IngredientProps {
-    name: string,
-    quantity: string,
-    price?: string
+  name: string;
+  quantity: string;
+  price?: string;
 }
 
-function Ingredient({name, quantity, price}: IngredientProps){
-
-
-    return (
-        <li className="w-full text-xl flex flex-col">
-            <div className="flex gap-2 items-center">
-                <span className="p-2 text-gray-200">
-                    {name}
-                </span>
-                <span className="flex flex-grow justify-end">
-                    <span className="rounded-full px-2 py-1 bg-pink-500 text-white">
-                        {quantity}
-                    </span>
-                </span>
-            </div>
-            {
-                price &&
-                <span className="rounded-2xl px-3 py-1 bg-gray-500 text-white0">
-                    {price}
-                </span>
-            }
-        </li>
-    )
-}
-
-
-
-interface RecipeCoverProps{
-    mealName: string,
-    ingredients: IngredientProps[],
-}
-
-export function RecipeCover({mealName, ingredients}: RecipeCoverProps){
-    const router = useRouter();
-
-    return (
-        <>
-        <h1 className="p-4 text-3xl text-center font-bold">
-            {mealName}
-        </h1>
-
-        <div className="w-full">
-            <h3 className="text-2xl text-center w-full">
-                Ingredients
-            </h3>
-            <ol className="w-full p-5">
-                {
-                    ingredients.map(
-                        (ing, i) => <Ingredient key={i} {...ing} />
-                    )
-                }
-            </ol>
+function Ingredient({ name, quantity, price }: IngredientProps) {
+  return (
+    <li className="w-full text-lg flex flex-col space-y-1">
+      <div className="flex justify-between items-center p-4 rounded-md bg-primary-foreground backdrop-blur-md">
+        <span className="">{name}</span>
+        <span className="rounded-xl px-3 py-1 bg-primary text-white text-sm">
+          {quantity}
+        </span>
+      </div>
+      {price && (
+        <div className="pl-4">
+          <span className="rounded-xl px-3 py-1 bg-gray-600 text-white text-sm">
+            {price}
+          </span>
         </div>
-
-        <div className="sticky bottom-0 left-0 bg-gradient-to-b bg-blend-color backdrop-blur-xl p-4">
-            <Button onClick={handleClick} className="pl-5 gap-2">
-                <span> Let&apos;s Cook </span>
-                <ArrowRightIcon className="h-6 w-6" />
-            </Button>
-        </div>
-
-        </>
-    )
-
-
-    function handleClick(){
-        router.push("?step=1")
-    }
+      )}
+    </li>
+  );
 }
 
-
-interface RecipeStepsProps{
-    mealName: string,
-    recipe: StepItemProps[]
+interface RecipeCoverProps {
+  mealName: string;
+  ingredients: IngredientProps[];
 }
 
+export function RecipeCover({ mealName, ingredients }: RecipeCoverProps) {
+  const router = useRouter();
 
-export default function RecipeSteps({mealName, recipe}: RecipeStepsProps){
-    const router = useRouter();
+  function handleClick() {
+    router.push("?step=1");
+  }
 
-    return (
-        <>
-        <h1 className="p-2 text-3xl w-full text-center font-bold">
-            {mealName}
-        </h1>
+  return (
+    <>
+      <h1 className="text-4xl text-center font-extrabold p-6">{mealName}</h1>
 
-        <div className="w-full">
-            <h3 className="text-2xl text-center w-full">
-                Steps
-            </h3>
-            <ol className="w-full p-5 space-y-10">
-                {
-                    recipe.map(
-                        (step, index) => <StepItem key={index} {...step} />
-                    )
-                }
-            </ol>
-        </div>
+      <section className="w-full max-w-2xl mx-auto">
+        <h2 className="text-2xl font-semibold text-center mb-4">Ingredients</h2>
+        <ol className="space-y-2 px-4">{ingredients.map((ing, i) => (
+          <Ingredient key={i} {...ing} />
+        ))}</ol>
+      </section>
 
-        <Button onClick={handleClick} className="gap-2 pr-5">
+      <Button onClick={handleClick} className="gap-2 pr-5">
+            <span> Let's Cook </span>
+            <ArrowRightIcon className="w-6 h-6" />
+        </Button>
+    </>
+  );
+}
+
+interface RecipeStepsProps {
+  mealName: string;
+  recipe: StepItemProps[];
+}
+
+export default function RecipeSteps({ mealName, recipe }: RecipeStepsProps) {
+  const router = useRouter();
+
+  function handleClick() {
+    router.push("?steps");
+  }
+
+  return (
+    <>
+      <h1 className="text-4xl text-center font-extrabold p-6">{mealName}</h1>
+
+      <section className="w-full max-w-2xl mx-auto">
+        <h2 className="text-2xl font-semibold text-center mb-4">Steps</h2>
+        <ol className="space-y-3 px-6">{recipe.map((step, index) => (
+          <StepItem key={index} {...step} />
+        ))}</ol>
+      </section>
+
+      <Button onClick={handleClick} className="gap-2 pr-5">
             <ArrowLeftIcon className="w-6 h-6" />
             <span> See Ingredients </span>
         </Button>
-        </>
-    )
-
-
-    function handleClick(){
-        router.push("?steps")
-    }
+    </>
+  );
 }

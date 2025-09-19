@@ -1,58 +1,74 @@
-
 import { ClockIcon } from "@heroicons/react/24/outline";
-import getUserSessionHistory from "../actions/history_actions"
+import getUserSessionHistory from "../actions/history_actions";
 import { HistoryConvoItem } from "../ui/convo-history";
 import LinkAsButton from "../ui/links";
 
+export default async function History() {
+  const allQueries = await getUserSessionHistory();
+  const error = allQueries.error;
+  const history = error ? undefined : allQueries.data;
 
-export default async function History(){
-    const allQueries = await getUserSessionHistory();
-    const error = allQueries.error
-    const history = error? undefined : allQueries.data;
+  return (
+    <div className="w-full min-h-screen bg-background text-foreground px-4 py-8 flex flex-col items-center">
+      {/* Title */}
+      <div className="w-full max-w-3xl mb-6 flex items-center gap-2">
+        <ClockIcon className="w-6 h-6 text-primary" />
+        <h1 className="text-2xl font-semibold">Recipe History</h1>
+      </div>
 
-    return (
-        <div className="w-full min-h-full flex flex-col gap-10 items-center justify-center overflow-y-auto py-10 px-3">
-        <h1 className="p-4 text-3xl text-center font-bold flex items-center gap-2">
-            <ClockIcon className="h-8 w-8" />
-            History
-        </h1>
+      {/* Content */}
+      <div className="w-full max-w-3xl">
+        {history ? (
+          history.length > 0 ? (
+            <ul className="flex flex-col gap-4">
+              {history.map((item) => (
+                <li
+                  key={item.id}
+                  className="bg-primary-foreground/70 backdrop-blur-sm border border-border p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <HistoryConvoItem {...item} />
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <EmptyState />
+          )
+        ) : (
+          <ErrorState />
+        )}
+      </div>
+    </div>
+  );
+}
 
-            <div className="flex flex-col items-center justify-center w-full gap-5">
-                {
-                    history?
+function EmptyState() {
+  return (
+    <div className="w-full text-center px-4 py-8 bg-muted/30 border border-muted rounded-lg">
+      <p className="text-base text-muted-foreground mb-4">
+        You haven’t generated any recipes yet.
+      </p>
+      <LinkAsButton
+        href="/browse/upload"
+        className="inline-block bg-primary text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-primary/90 transition-colors"
+      >
+        Create Your First Recipe 💡
+      </LinkAsButton>
+    </div>
+  );
+}
 
-                        history.length?
-
-                            history.map(
-                                item => <HistoryConvoItem key={item.id}  {...item} />
-                            )
-                            :
-                            <div className="text-center">
-                                <p>
-                                    You have not generated any recipes yet <br></br>
-                                    Click here to create your own recipe
-                                </p>
-                                
-                                <LinkAsButton href="/browse/upload" className="text-pink-600">
-                                    Create your Recipe 💪
-                                </LinkAsButton>
-                            </div>
-
-                    : 
-                        <div className="bg-red-500 text-white">
-                            An error occured while fetching your history. <br></br>
-                            No worrries it will be resolves ASAP. <br></br>
-                            
-                            <p>
-                                You can get back to cooking 🔥
-                            </p>
-
-                            <LinkAsButton href="/browse/upload" className="text-pink-600">
-                                Create your Recipe 💪
-                            </LinkAsButton>
-                        </div>
-                }
-            </div>
-        </div>
-    )
+function ErrorState() {
+  return (
+    <div className="w-full text-center px-4 py-8 bg-red-500/10 border border-red-500/30 rounded-lg">
+      <p className="text-base text-red-300 mb-4">
+        Failed to load your recipe history. Try again later.
+      </p>
+      <LinkAsButton
+        href="/browse/upload"
+        className="inline-block bg-red-500 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-600 transition-colors"
+      >
+        Start Cooking 🔥
+      </LinkAsButton>
+    </div>
+  );
 }
