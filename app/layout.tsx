@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "./ui/navbar";
+import { initTheme } from "./lib/theme";
+import ThemeClient from "./components/theme-client";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,7 +35,7 @@ export const metadata: Metadata = {
     creator: "@DavidTimi_1", 
     images: "https://pic2plate-tau.vercel.app/images/hero.webp" 
   },
-  authors: [{ name: "TimiDev", url: "https://github.com/DavidTimi" }],
+  authors: [{ name: "Dev_id", url: "https://github.com/DavidTimi1" }],
 };
 
 export default function RootLayout({
@@ -43,12 +45,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <ThemeClient />
+      
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <div className="w-full h-full">
+        <div className="w-full h-full bg-background">
           <Navbar />
-          <div className="w-full h-full py-8">
+          <div className="w-full h-full">
           {children}
         </div>
         </div>
