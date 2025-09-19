@@ -1,293 +1,285 @@
-
 "use client";
 
 import "@/app/ui/scan-image.css";
 
 import { useState, useEffect } from "react";
-import { TextArea } from "./inputs";
-import { ExclamationCircleIcon, SparklesIcon } from "@heroicons/react/24/outline";
-import Button from "./button";
-import RecipeAction from "../actions/recipe_action";
-import { deduceFromImage } from "../actions/scan_action";
 import { useRouter, useSearchParams } from "next/navigation";
-import { IngredientLocation } from "../lib/definitions";
+import { Sparkles, InfoIcon, Loader2 } from "lucide-react";
 import { CldImage } from "next-cloudinary";
 
+import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
 
+import { deduceFromImage } from "@/app/actions/scan_action";
+import RecipeAction from "@/app/actions/recipe_action";
+import { IngredientLocation } from "@/lib/definitions";
+
+import ImagePlacer from "./image-placer";
+import { Badge } from "../components/ui/badge";
 
 interface DeducedInfo {
-    name: string,
-    details: string,
-    ingredients: IngredientLocation
+    name: string;
+    details: string;
+    ingredients: IngredientLocation;
 }
 
+export default function ScanImage() {
+    const router = useRouter();
+    const { toast } = useToast();
+    const searchParams = useSearchParams();
+    const imgSrc = searchParams.get("image");
+    const query = searchParams.get("description");
 
-
-export default function ScanImage(){
+    const [deduced, setDeduced] = useState<DeducedInfo | undefined>(undefined);
+    const [loading, setLoading] = useState<'scanning' | false | 'generating'>(imgSrc ? 'scanning' : false);
+    const [deducedDetails, setDeducedDetails] = useState(query ?? '');
+    const [scanError, setScanError] = useState('');
     
-    // get the query parameter value of image
-    const imgSrc = useSearchParams().get("image");
-
-    const [loading, setLoading] = useState<'scanning'| false | 'generating'>(imgSrc? 'scanning': false);
-    const [deduced, setDeduced] = useState<DeducedInfo>();
-    const [error, setError] = useState('');
-    const [rerender, setRerender] = useState(false);
-
-    // run when the component mounts initially
-    // use the server action to deduce form image
-    // print results form server
     useEffect(() => {
-        if (!imgSrc) return;
+        if (!imgSrc) {
+            toast({
+                title: "No image selected",
+                description: "Please go back and upload an image.",
+                variant: "destructive",
+            });
+            return;
+        }
 
+        processImageScan();
+
+    }, [imgSrc]);
+
+    const handleGenerateRecipe = async () => {
+        setLoading('generating');
+        const tmpFile = window.location.hash.slice(1);
+        const ingredients = Object.keys(deduced?.ingredients ?? {});
+
+        if ((!imgSrc && !deducedDetails) || !deduced) {
+            toast({
+                title: "Incomplete Information",
+                description: "You must provide a description or upload an image.",
+                variant: "destructive",
+            });
+            setLoading(false);
+            return;
+        }
+
+        try {
+            const res = await RecipeAction({
+                imgSrc,
+                ingredients,
+                tmpFile,
+                mealName: deduced.name,
+                details: deducedDetails,
+            });
+
+            if (res.success) {
+                toast({
+                    title: "Recipe Generated!",
+                    description: "Redirecting you to the full recipe...",
+                });
+                router.push(`/recipe/${res.id}`);
+            } else {
+                toast({
+                    title: "Recipe Generation Failed",
+                    description: res.error || "An unknown error occurred.",
+                    variant: "destructive",
+                });
+                setLoading(false);
+            }
+        } catch (error) {
+            console.error(error);
+            toast({
+                title: "Recipe Generation Failed",
+                description: "An unexpected error occurred. Please try again.",
+                variant: "destructive",
+            });
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="container mx-auto py-8 lg:py-16">
+            <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-start">
+                <ImageDisplay
+                    imgSrc={imgSrc}
+                    loading={loading}
+                    deduced={deduced}
+                    scanError={scanError}
+                />
+                <DetailsPanel
+                    deduced={deduced}
+                    deducedDetails={deducedDetails}
+                    setDeducedDetails={setDeducedDetails}
+                    loading={loading}
+                    handleGenerateRecipe={handleGenerateRecipe}
+                    scanError={scanError}
+                    onRetry={processImageScan}
+                />
+            </div>
+        </div>
+    );
+
+    function processImageScan(){
         const tmpFile = window.location.hash.slice(1);
 
-        deduceFromImage({imageSrc: imgSrc, tmpSrc: tmpFile})
-            .then(res => {
-                if (res.success && res.data){
-                    setTimeout( 
-                        () => setDeduced({...res.data, details: ''})
-                    , 1000 )
+        setLoading('scanning');
+        setScanError('');
 
+        deduceFromImage({ imageSrc: imgSrc, tmpSrc: tmpFile })
+            .then(res => {
+                if (res.success && res.data) {
+                    setTimeout(() => {
+                        setDeduced({ ...res.data, details: '' });
+                    }, 1000);
                 } else {
-                    if (res.error) setError(res.error);
+                    setScanError(res.error || "An unknown error occurred during scanning.");
+                    toast({
+                        title: "Scanning Failed",
+                        description: res.error || "An unknown error occurred.",
+                        variant: "destructive",
+                    });
                 }
             })
             .catch(error => {
-                setError(error.message);
+                console.error(error);
+                setScanError("Failed to scan image. Please try again.");
+                toast({
+                    title: "Scanning Failed",
+                    description: "Failed to scan image. Please try again.",
+                    variant: "destructive",
+                });
             })
             .finally(() => {
                 setLoading(false);
             });
-    }, [rerender, imgSrc]);
-    
-
-    return (
-
-        <div className="w-full h-full max-h-[700px]">
-
-            <div className="rounded-xl w-full h-full">
-                {
-                    imgSrc ?
-                        <>
-                        <CldImage
-                            alt=""
-                          src={imgSrc} // Use this sample image or upload your own via the Media Explorer
-                          width="500" // Transform the image: auto-crop to square aspect_ratio
-                          height="500"
-                          crop={{
-                            type: 'auto',
-                            source: true
-                          }}
-                           className="w-full h-full object-cover rounded-xl"
-                        />
-                        {/* <img src={imgSrc} alt="" className="w-full h-full object-cover rounded-xl" /> */}
-                        { 
-                            loading === "scanning" &&
-                            <div className="w-full h-4 absolute bg-white blur-sm top-0 left-0 scan-beam"></div>
-                        }
-                        </>
-                    :
-                    <div className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2">
-                        <ExclamationCircleIcon className="h-10 w-10" />
-                        <p>
-                            No Image selected
-                        </p>
-                    </div>
-                }
-            </div>
-
-            {
-                loading === "generating" ?
-                    <div className="fixed top-0 left-0 w-full h-full bg-pink-500 flex items-center justify-center gap-2">
-                        <SparklesIcon className="w-16 h-16 animate-spin" />
-                        <span>
-                            Generating Recipe ....
-                        </span>
-                    </div>
-                :
-                loading === false?
-                    <PopUpWithDetails 
-                        deduced={deduced} 
-                        updateDetails={updateDetails} 
-                        error={error} 
-                        imgSrc={imgSrc} 
-                        showError={setError} 
-                        showLoading={setLoading} 
-                    />
-                : 
-                <></>
-            }
-        </div>
-    )
-
-    function updateDetails(value: string | null){
-        if (value !== null){
-            setDeduced({...deduced, details: value} as DeducedInfo)
-            
-        } else {
-            // trigger rescan image
-            setLoading("scanning")
-            setRerender(!rerender)
-        }
     }
-
 }
 
+// Separate components for better organization
 
-interface PopUpProps {
-    imgSrc: string | null,
-    deduced: DeducedInfo | undefined,
-    error: string,
-    updateDetails: (value: string | null) => void,
-    showError: (err: string) => void,
-    showLoading: (state: "generating" | "scanning" | false) => void
-}
-
-
-function PopUpWithDetails({deduced, error, showError, imgSrc, updateDetails, showLoading}: PopUpProps){
-    const ingredients = Object.keys(deduced?.ingredients ?? {} );
-    const router = useRouter();
-
-
+// Renders the image and its overlay
+function ImageDisplay({ imgSrc, loading, deduced, scanError }: {
+    imgSrc: string | null;
+    loading: 'scanning' | false | 'generating';
+    deduced: DeducedInfo | undefined;
+    scanError: string;
+}) {
     return (
-        <div className="fixed top-0 left-0 w-full h-full bg-slate-300 bg-opacity-20">
-            <form onSubmit={handleSubmit} className={`absolute bg-black flex items-center justify-center flex-col rounded-t-2xl py-2 w-full bottom-0 px-3 md:px-10 max-h-[min(700px,80vh)] ${ error? "min-h-60" : "min-h-96" } overflow-hidden`}>
-                <div className="w-full h-5">
-                    <div className="mx-auto my-1 h-1 bg-white w-16 rounded-full"></div>
-                </div>
-                <div className="w-full flex justify-center flex-col gap-5 overflow-y-auto flex-grow">
-
-                {
-                    error ?
-                        <div className="p-5 flex w-full flex-col gap-2 align-center justify-center">
-                            <div className="bg-red-500 text-white p-3 rounded-xl">
-                                {error}
+        <div className="relative aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl">
+            {imgSrc && !scanError ? (
+                <>
+                    <CldImage
+                        alt="Scanned meal"
+                        src={imgSrc}
+                        width="800"
+                        height="600"
+                        crop={{ type: 'auto', source: true }}
+                        className="w-full h-full object-cover"
+                    />
+                    {loading === "scanning" && (
+                        <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent flex items-end justify-center p-8">
+                            <div className="w-full h-2 absolute bg-primary blur-sm top-0 left-0 scan-beam"></div>
+                            <div className="text-center">
+                                <Loader2 className="h-10 w-10 text-primary animate-spin" />
+                                <p className="mt-2 text-white text-lg font-semibold">Scanning image...</p>
                             </div>
-                            <Button onClick={retryAction}>
-                                Try Again 
-                            </Button>
                         </div>
+                    )}
+                    {deduced && (
+                        <ImagePlacer 
+                            ingredients={deduced.ingredients}
+                            mealName={deduced.name}
+                        />
+                    )}
+                </>
+            ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center bg-muted/50 p-8 text-center">
+                    <InfoIcon className="h-16 w-16 text-muted-foreground" />
+                    <p className="mt-4 text-xl text-muted-foreground">
+                        {scanError || "No Image selected"}
+                    </p>
+                </div>
+            )}
+        </div>
+    );
+}
 
-                    : 
+// Renders the input fields and buttons
+function DetailsPanel({ deduced, deducedDetails, setDeducedDetails, loading, handleGenerateRecipe, scanError, onRetry }: {
+    deduced: DeducedInfo | undefined;
+    deducedDetails: string;
+    setDeducedDetails: (value: string) => void;
+    loading: 'scanning' | false | 'generating';
+    handleGenerateRecipe: () => void;
+    scanError: string;
+    onRetry: () => void;
+}) {
+    return (
+        <Card className="flex flex-col h-full">
+            <CardHeader>
+                {scanError ? (
                     <>
-                    {
-                        deduced?.ingredients ?
-                            <>
-                            <TextArea label="Details"
-                                rows={2}
-                                placeholder="Meal name, your budget ..."
-                                value={deduced.details}
-                                onChange={(e) => updateDetails(e.target.value)}
-                            >
-                                Give more information about the meal for accurate response
-                            </TextArea>
-
-                            <div className="flex-grow overflow-y-auto gap-3">
-                                <DetailSection title="Meal Name" value={deduced?.name} />
-
-                                <DetailSection title="Ingredients" value={ ingredients.join("\n") } />
-
-                            </div>
-                            </>
-                        : 
-                        <TextArea label="Details"
-                            rows={4}
-                            placeholder="Meal name, your budget ..."
-                            value={deduced?.details ?? ""}
-                            onChange={(e) => updateDetails(e.target.value)}
-                        >
-                            Give a full description of the meal
-                        </TextArea>
-                    }
-                        <Button type="submit">
-                            <div className="flex gap-2 items-center justify-center">
-                                <span>
-                                    Prepare Recipe
-                                </span>
-                                <SparklesIcon className="h-6 w-6" />
-                            </div>
+                        <CardTitle className="text-3xl text-destructive">Scan Failed</CardTitle>
+                        <CardDescription className="text-destructive">{scanError}</CardDescription>
+                        <Button onClick={onRetry} className="mt-4">
+                            Try Again
                         </Button>
                     </>
-                }
-                </div>
-            </form>
-        </div>
-    )
-    
-    
-    async function handleSubmit(e?: React.FormEvent<HTMLFormElement>){
-        e?.preventDefault?.();
-        const tmpFile = window.location.hash.slice(1);
-
-        if ((!imgSrc && !deduced?.details || !deduced)){
-            showError("You must set at least a description text or upload an image");
-            showLoading(false);
-            return
-        }
-
-        showError('');
-        showLoading('generating');
-
-        const res = await RecipeAction({
-            imgSrc, ingredients, tmpFile,
-            mealName: deduced.name,
-            details: deduced.details,
-        })
-        if (res.success){
-            // navigate to view the full recipe
-            router.push(`/recipe/${res.id}`);
-
-        } else {
-            if (res.error) showError(res.error);
-            showLoading(false);
-        }
-        
-        
-    }
-
-    function retryAction(){
-        // if scan failed rescan
-        // if scan successful, retry recipe generation
-        // if no image retry recipe generation
-        showError('');
-
-        if (!imgSrc || ingredients.length){
-            console.log("Generating recipe again")
-            handleSubmit();
-
-        } 
-        else {
-            updateDetails(null);
-        }
-    }
-}
-
-
-const DetailSection = ({title, value}: {title: string; value: string}) => (
-    <>
-    <div className="w-full flex flex-col gap-1">
-        <small className="text-gray-200"> {title} </small>
-        <p className="text-white">
-            {value}
-        </p>
-    </div>
-    <hr></hr>
-    </>
-)
-
-export function LoadingPage(){
-
-    return (
-        <div className="w-full h-full max-h-[700px]">
-            <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center">
-                <div className="flex gap-3 items-center">
-                    <svg className="animate-spin h-10 w-10 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    <span className="text-white mt-2">Loading...</span>
-                </div>
-            </div>
-        </div>
-    )
+                ) : (
+                    <>
+                        <CardTitle className="text-3xl font-bold">
+                            {deduced?.name || "Enter Meal Details"}
+                        </CardTitle>
+                        <CardDescription>
+                            Review the details and add more information for a more accurate recipe.
+                        </CardDescription>
+                    </>
+                )}
+            </CardHeader>
+            <CardContent className="flex-grow flex flex-col gap-6 overflow-y-auto">
+                <Textarea
+                    placeholder="E.g., Low-carb, gluten-free, ready in 30 minutes, etc."
+                    value={deducedDetails}
+                    onChange={(e) => setDeducedDetails(e.target.value)}
+                    rows={4}
+                    className="flex-grow resize-none"
+                    disabled={loading !== false || !!scanError}
+                />
+                {deduced?.ingredients && (
+                    <div className="mt-4">
+                        <h3 className="text-lg font-semibold mb-2">Deduced Ingredients:</h3>
+                        <div className="flex flex-wrap gap-2">
+                            {Object.keys(deduced.ingredients).map((ingredient, index) => (
+                                <Badge key={index} variant="secondary">
+                                    {ingredient}
+                                </Badge>
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </CardContent>
+            <CardFooter>
+                <Button
+                    onClick={handleGenerateRecipe}
+                    disabled={loading !== false || !!scanError}
+                    className="w-full h-12 text-lg"
+                >
+                    {loading === 'generating' ? (
+                        <>
+                            <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                            Preparing Recipe...
+                        </>
+                    ) : (
+                        <>
+                            Prepare Recipe
+                            <Sparkles className="h-5 w-5 ml-2" />
+                        </>
+                    )}
+                </Button>
+            </CardFooter>
+        </Card>
+    );
 }

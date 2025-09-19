@@ -5,7 +5,7 @@ import fs from "fs/promises";
 import path from "path";
 import { findIngredients } from "../lib/scan";
 import { cleanJSON, importExternalImage } from "../lib/helpers";
-import { Scanned } from "../lib/definitions";
+import { AIError, Scanned } from "../lib/definitions";
 import { TEMPDIR } from "@/next.config";
 
 
@@ -37,7 +37,11 @@ export async function deduceFromImage(json: { imageSrc: string, tmpSrc: string }
 
   try {
     const ai_response = await findIngredients(image_data);
-    const scanned = cleanJSON(ai_response) as Scanned;
+    const scanned = cleanJSON(ai_response) as Scanned | AIError;
+
+    if (scanned && 'error' in scanned) {
+      return { success: false, error: scanned.error };
+    }
 
     return { success: true, data: scanned, imgUrl: localFileName };
 

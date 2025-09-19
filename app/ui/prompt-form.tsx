@@ -1,148 +1,197 @@
-"use client"
+"use client";
 
-import { useRef, useState } from "react";
-import { ArrowRightIcon, PhotoIcon, TrashIcon } from "@heroicons/react/24/outline";
-import Button from "./button";
+import React, { useRef, useState } from "react";
+import { ArrowRight, Trash, UploadCloud } from "lucide-react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import Image from "next/image";
+import { Progress } from "@/components/ui/progress";
+import Link from "next/link";
 
 export default function ImageUploadForm() {
-    const nextRoute = "/browse";
-    const dropzoneRef = useRef<HTMLLabelElement>(null);
+  const nextRoute = "/browse";
+  const dropzoneRef = useRef<HTMLLabelElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
-    const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [image, setImage] = useState<File | null>(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
-    const [image, setImage] = useState<File | null>(null);
+  const router = useRouter();
+  const { toast } = useToast();
 
-    return (
-        <div className="w-full h-full max-h-[700px]">
-            <div className="w-full h-full flex flex-col gap-5">
-                <div className="w-full flex justify-end">
-                    <a href={nextRoute} className="flex gap-2">
-                        <span> Skip </span>
-                        <ArrowRightIcon className="h-5 w-5" />
-                    </a>
-                </div>
+  function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const { files } = e.target;
+    if (files?.[0]) setImage(files[0]);
+  }
 
-                {
-                    error &&
-                    <div className="bg-red-500 text-white p-3 rounded-xl">
-                        {error}
-                    </div>
-                }
+  function handleDragOver(e: React.DragEvent<HTMLLabelElement>) {
+    e.preventDefault();
+    if (dropzoneRef.current) {
+      dropzoneRef.current.classList.add("border-primary", "bg-muted");
+    }
+  }
 
-                {
-                    image ?
-                        <>
-                            <img src={URL.createObjectURL(image)} alt="uploaded" className="w-full h-full max-h-full object-cover rounded-xl" />
+  function handleDragLeave(e: React.DragEvent<HTMLLabelElement>) {
+    e.preventDefault();
+    if (dropzoneRef.current) {
+      dropzoneRef.current.classList.remove("border-primary", "bg-muted");
+    }
+  }
 
-                            <Button onClick={() => setImage(null)} disabled={loading} deEmphasize>
-                                <span className={`flex gap-2 ${loading ? "opacity-30" : ''}`}>
-                                    Remove Image
-                                    <TrashIcon className="h-5 w-5" />
-                                </span>
-                            </Button>
-                        </>
-                    :
-                        
-                        <label
-                            className="border-dashed border-2 rounded-xl w-full flex-grow bg-gray-200 border-gray-400 cursor-pointer"
-                            onDragOver={handleDragOver}
-                            onDragLeave={handleDragLeave}
-                            onDrop={handleDrop}
-                            ref={dropzoneRef}
-                        >
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-black">
-                                <div className="flex flex-col align-center justify-center">
-                                    <PhotoIcon className="h-10 w-10" />
-                                    <span> Click or <br></br> Drag and Drop to Upload </span>
-                                </div>
-                            </div>
+  function handleDrop(e: React.DragEvent<HTMLLabelElement>) {
+    handleDragLeave(e);
+    const files = e.dataTransfer.files;
+    if (files?.[0]) setImage(files[0]);
+  }
 
-                            <input onChange={handleImageChange} type="file" name="" accept="image/*" hidden multiple={false} />
+  function handleFileSelect() {
+    fileInputRef.current?.click();
+  }
 
-                        </label>
+  function handleRemoveImage() {
+    setImage(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+    setUploadProgress(0);
+  }
 
-                }
+  async function handleBtnClick() {
+    if (!image) {
+      return toast({
+        title: "No image selected",
+        description: "Please upload an image to continue.",
+        variant: "destructive",
+      });
+    }
 
+    setLoading(true);
+    setUploadProgress(0);
+    const formData = new FormData();
+    formData.append("image", image as Blob);
 
-                <Button onClick={handleBtnClick} disabled={!image}>
-                    <span className={`flex gap-2 ${loading ? "opacity-30" : ''}`}>
-                        Next
-                        <ArrowRightIcon className="h-5 w-5" />
-                    </span>
-                    {
-                        loading &&
-                        <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-                            <div className="flex gap-3 items-center">
-                                <svg className="animate-spin h-10 w-10 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                                <span className="text-white mt-2">Loading...</span>
-                            </div>
-                        </span>
-                    }
+    try {
+      const uploadUrl = "/api/upload";
+      const res = await axios.post(uploadUrl, formData, {
+        onUploadProgress: (progressEvent) => {
+          if (progressEvent.total) {
+            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            setUploadProgress(percentCompleted);
+          }
+        },
+      });
+
+      const { url } = res.data;
+      if (url) {
+        toast({
+          title: "Image uploaded successfully!",
+          description: "Redirecting to your recipe...",
+        });
+        router.push(`${nextRoute}?image=${url}`);
+      } else {
+        throw new Error("Invalid response from server.");
+      }
+    } catch (err) {
+      console.error(err);
+      setLoading(false);
+      setUploadProgress(0);
+      toast({
+        title: "Upload Failed",
+        description: "An error occurred while uploading your image. Please try again.",
+        variant: "destructive",
+      });
+    }
+  }
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-8rem)] py-12 px-4 md:px-8">
+      <Card className="w-full max-w-2xl">
+        <CardHeader className="relative">
+          <Button asChild variant="ghost" className="absolute top-4 right-4">
+            <Link href={nextRoute}>
+              Skip <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
+          </Button>
+          <CardTitle className="text-3xl font-bold">Upload an Image</CardTitle>
+          <CardDescription>
+            Take a picture of a meal and get the recipe instantly.
+          </CardDescription>
+        </CardHeader>
+
+        <CardContent>
+          {!image ? (
+            <label
+              htmlFor="file-upload"
+              ref={dropzoneRef}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              onClick={handleFileSelect}
+              className="flex flex-col items-center justify-center p-12 border-2 border-dashed border-border rounded-xl cursor-pointer transition-colors duration-300 relative aspect-video"
+            >
+              <UploadCloud className="h-16 w-16 text-muted-foreground" />
+              <div className="mt-4 text-center">
+                <p className="text-sm font-medium">
+                  <span className="text-primary">Click to upload</span> or drag and drop
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  PNG, JPG, JPEG up to 10MB
+                </p>
+              </div>
+              <input
+                ref={fileInputRef}
+                id="file-upload"
+                onChange={handleImageChange}
+                type="file"
+                accept="image/*"
+                hidden
+              />
+            </label>
+          ) : (
+            <div className="relative aspect-video rounded-xl overflow-hidden group">
+              <Image
+                src={URL.createObjectURL(image)}
+                alt="uploaded meal"
+                layout="fill"
+                objectFit="cover"
+                className="transition-transform duration-300 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50">
+                <Button variant="ghost" size="icon" onClick={handleRemoveImage} className="text-white hover:bg-white/20">
+                  <Trash className="h-6 w-6" />
                 </Button>
-
+              </div>
             </div>
-        </div>
-    )
+          )}
+        </CardContent>
 
-    function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
-        const { target: { files } } = e;
-        if (files?.[0]) setImage(files[0]);
-    }
-
-    function handleDragLeave(e: React.DragEvent<HTMLLabelElement>) {
-        e.preventDefault();
-        if (dropzoneRef.current) dropzoneRef.current.classList.remove("border-gray-700", "bg-gray-400");
-    }
-
-    function handleDragOver(e: React.DragEvent<HTMLLabelElement>) {
-        e.preventDefault()
-        if (dropzoneRef.current) dropzoneRef.current.classList.add("border-gray-700", "bg-gray-400");
-    }
-
-    function handleDrop(e: React.DragEvent<HTMLLabelElement>) {
-        handleDragLeave(e);
-
-        const files = e.dataTransfer.files;
-        if (files?.[0]) setImage(files[0]);
-    }
-
-    async function handleBtnClick() {
-        const formData = new FormData();
-        console.log("Uploading image...");
-        const uploadUrl = "/api/upload";
-
-        if (!image) return
-
-        setLoading(true);
-        formData.append("image", image as Blob);
-
-        axios.post(uploadUrl, formData)
-        .then( res => {
-            const data = res.data;
-
-            if (data.message && data.url) {
-                console.log("Upload successful!");
-                // Redirect to the next page
-                router.push(`${nextRoute}?image=${data.url}`);
-    
-            } else {
-                showError("An error occured")
-            }
-        })
-        .catch(showError)
-        
-        function showError(err: string){
-            setError("Failed to upload image");
-            console.log(err);
-            setLoading(false);
-        }
-    }
+        <CardFooter className="flex flex-col gap-4">
+          {image && (
+            <Progress value={uploadProgress} className="w-full h-2 transition-all duration-300" />
+          )}
+          <Button
+            onClick={handleBtnClick}
+            disabled={!image || loading}
+            className="w-full text-lg h-12 relative"
+          >
+            {loading ? (
+              <span className="flex items-center gap-2">
+                <ArrowRight className="h-5 w-5 animate-pulse" />
+                <span className="text-white">Processing...</span>
+              </span>
+            ) : (
+              <span className="flex items-center gap-2">
+                Next
+                <ArrowRight className="h-5 w-5" />
+              </span>
+            )}
+          </Button>
+        </CardFooter>
+      </Card>
+    </div>
+  );
 }

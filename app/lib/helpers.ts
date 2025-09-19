@@ -10,15 +10,23 @@ import { TEMPDIR } from "@/next.config";
 
 
 export function cleanJSON(generatedContent: GenerateContentResult) {
-    // get the deduced info from the generated content
-    const deduced_info = generatedContent.response.text();
 
-    // parse the deduced info from first {  to last }
-    const start = deduced_info.indexOf("{");
-    const end = deduced_info.lastIndexOf("}") + 1;
-    const cleanedJSON = JSON.parse(deduced_info.slice(start, end));
+  // get the deduced info from the generated content
+  const deduced_info = generatedContent.response.text();
 
-    return cleanedJSON;
+  // parse the deduced info from first {  to last }
+  const begng = ['{', '['].map(a => deduced_info.indexOf(a))
+  const starts : {[key: string]: string} = {
+    [begng[0] > -1? begng[0] : Infinity]: '}',
+    [begng[1] > -1? begng[1] : Infinity]: ']',
+  };
+
+  const start = Math.min( ...( Object.keys(starts).map( a => parseInt(a)) ) )
+
+  const end = deduced_info.lastIndexOf( starts[ start ] ) + 1;
+  const cleanedJSON = JSON.parse(deduced_info.slice(start, end));
+
+  return cleanedJSON;
 }
 
 

@@ -5,11 +5,6 @@
 import { UUID } from 'crypto';
 import { db } from '@vercel/postgres';
 import { ConvoItem, RecipeResult } from './definitions';
-import { setupDatabase } from './db';
-
-// Run setup once when imported
-setupDatabase().catch(console.log);
-
 
 const client = await db.connect();
 

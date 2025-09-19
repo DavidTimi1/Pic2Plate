@@ -45,3 +45,7 @@ export interface userSession {
     history: ConvoItem[],
 }
 
+export interface AIError {
+    success: false,
+    error: string
+}

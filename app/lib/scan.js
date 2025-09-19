@@ -5,7 +5,7 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 // const fileManager = new GoogleAIFileManager(GEMINI_API_KEY);
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
 
 
@@ -22,10 +22,12 @@ export async function findIngredients(imgFile) {
     if (imgFile){
         prompt = `As an professional cook in local dishes, Identify what meal\
         this is in the image and give a list of the bounding boxes for the ingredients identified in the image\
-        exclusively listing only those related to the meal identified. If no meal is identified return "No meal seen". \
-        Ingredients = {ingredient_name: [ [ymin, xmin, ymax, xmax], ... ] // bounding box coordinates}\
+        exclusively listing only those related to the meal identified. \
+        If no meal is identified return the object {error: "No meal identified"}. \
+        Ingredients = {ingredient_name: [x, y], ... ] // center of bounding box coordinates}\
+        The intro text should be short e.g 'Yum, this looks like a delicious meal of'\
 
-        In the format { name: mealName, ingredients: Object<Ingredients> }.`;
+        In the format { intro: IntroText, name: mealName, ingredients: Object<Ingredients> }.`;
 
     }
 

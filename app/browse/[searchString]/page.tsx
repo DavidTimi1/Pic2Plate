@@ -1,10 +1,15 @@
+
+"use client";
+
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
-import ScanImage from "../ui/image-scan";
+import ScanImage from "../../ui/image-scan";
 import { Suspense } from "react";
+import { useParams } from "next/navigation";
 
 
-export default function Query(){
+export default function DirectPrompt(){
     const prevRoute = "/browse/upload";
+    const {searchString} : {searchString: string} = useParams();
 
     return (
         <div className="w-full h-full flex flex-col gap-5">
@@ -17,7 +22,7 @@ export default function Query(){
             </div>
 
             <Suspense fallback={<></>}>
-                <ScanImage />
+                <ScanImage searchString={searchString} />
             </Suspense>
         </div>
     )
