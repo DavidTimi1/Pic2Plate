@@ -11,24 +11,29 @@ import { TEMPDIR } from "@/next.config";
 
 
 export async function deduceFromImage(json: { imageSrc?: string, tmpSrc?: string }) {
-  const {imageSrc, tmpSrc} = json;
+  const { imageSrc, tmpSrc } = json;
 
-  let localFileName = tmpSrc, image_blob
+  if (!imageSrc && !tmpSrc)
+    return { success: false, error: "No image provided" };
+
+  let localFileName = tmpSrc ?? "", image_blob
   let filePath = path.join(TEMPDIR, `uploads_${localFileName}`);
 
 
   try {
-    image_blob = await fs.readFile(filePath);
+    if (localFileName) {
+      image_blob = await fs.readFile(filePath);
+    }
 
   } catch {
     // check if file exists
-    localFileName = await importExternalImage(imageSrc) ?? "";
+    localFileName = await importExternalImage(imageSrc ?? "") ?? "";
 
     if (!localFileName)
       return { success: false, error: "File not found" };
 
     filePath = path.join(TEMPDIR, `uploads_${localFileName}`);
-    
+
     image_blob = await fs.readFile(filePath);
   }
 
