@@ -37,6 +37,9 @@ export async function deduceFromImage(json: { imageSrc?: string, tmpSrc?: string
     image_blob = await fs.readFile(filePath);
   }
 
+  if (!image_blob){
+    return { success: false, error: "File not found" };
+  }
 
   const image_data = image_blob.toString("base64");
 
