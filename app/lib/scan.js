@@ -5,13 +5,13 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 // const fileManager = new GoogleAIFileManager(GEMINI_API_KEY);
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
 
 
 
 export async function findIngredients(imgFile) {
     let prompt;
-    
+
     const filePart = {
         inlineData: {
             data: imgFile,
@@ -19,7 +19,7 @@ export async function findIngredients(imgFile) {
         },
     };
 
-    if (imgFile){
+    if (imgFile) {
         prompt = `As an professional cook in local dishes, Identify what meal\
         this is in the image and give a list of the bounding boxes for the ingredients identified in the image\
         exclusively listing only those related to the meal identified. \
