@@ -36,7 +36,7 @@ export default async function RecipeAction({ingredients, imgSrc, mealName, detai
         const ai_response = await getRecipe(details, chatHistory);
         recipe = cleanJSON(ai_response);
 
-    } catch(err){
+    } catch {
         return { success: false, error: "Error prompting AI model" };
 
     }

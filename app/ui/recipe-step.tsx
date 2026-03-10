@@ -79,7 +79,7 @@ export function RecipeCover({ mealName, ingredients }: RecipeCoverProps) {
       </section>
 
       <Button onClick={handleClick} className="gap-2 pr-5">
-            <span> Let's Cook </span>
+            <span> Let&apos;s Cook </span>
             <ArrowRightIcon className="w-6 h-6" />
         </Button>
     </>

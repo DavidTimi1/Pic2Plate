@@ -3,7 +3,7 @@ const THEMES = ["light", "dark"];
 export function getTheme() {
     let pref = localStorage.getItem("theme");
     if (!pref) {
-        let prefLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+        const prefLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
         pref = prefLight ? "light" : "dark"
     }
 

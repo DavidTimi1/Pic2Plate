@@ -34,7 +34,7 @@ export default function RecipeView() {
                 setRecipe({recipe: undefined});
             }
         })
-        .catch(res => {
+        .catch(() => {
             setRecipe({recipe: undefined});
         })
         
