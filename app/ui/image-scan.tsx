@@ -29,8 +29,8 @@ export default function ScanImage({searchString}: {searchString?: string}) {
     const router = useRouter();
     const { toast } = useToast();
     const searchParams = useSearchParams();
-    const imgSrc = searchParams.get("image");
-    const query = searchParams.get("description");
+    const imgSrc = searchParams.get("image") || undefined;
+    const query = searchParams.get("description") || undefined;
 
     const [deduced, setDeduced] = useState<DeducedInfo | undefined>(undefined);
     const [loading, setLoading] = useState<'scanning' | false | 'generating'>(imgSrc ? 'scanning' : false);
@@ -162,7 +162,7 @@ export default function ScanImage({searchString}: {searchString?: string}) {
 
 // Renders the image and its overlay
 function ImageDisplay({ imgSrc, loading, deduced, scanError }: {
-    imgSrc: string | null;
+    imgSrc: string | undefined;
     loading: 'scanning' | false | 'generating';
     deduced: DeducedInfo | undefined;
     scanError: string;
