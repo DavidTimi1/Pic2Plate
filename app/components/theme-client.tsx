@@ -12,7 +12,7 @@ export default function ThemeClient() {
 }
 
 export function useTheme() {
-  const [theme, setTheme] = useState<Theme>(getTheme());
+  const [theme, setTheme] = useState<Theme>('dark');
 
   useEffect(() => {
     const handleStorageChange = () => {
