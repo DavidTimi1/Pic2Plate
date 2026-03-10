@@ -25,7 +25,7 @@ interface DeducedInfo {
     ingredients: IngredientLocation;
 }
 
-export default function ScanImage() {
+export default function ScanImage({searchString}: {searchString?: string}) {
     const router = useRouter();
     const { toast } = useToast();
     const searchParams = useSearchParams();
@@ -34,7 +34,7 @@ export default function ScanImage() {
 
     const [deduced, setDeduced] = useState<DeducedInfo | undefined>(undefined);
     const [loading, setLoading] = useState<'scanning' | false | 'generating'>(imgSrc ? 'scanning' : false);
-    const [deducedDetails, setDeducedDetails] = useState(query ?? '');
+    const [deducedDetails, setDeducedDetails] = useState(query ?? searchString ?? '');
     const [scanError, setScanError] = useState('');
     
     useEffect(() => {
