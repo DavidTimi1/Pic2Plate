@@ -24,7 +24,7 @@ export async function findIngredients(imgFile) {
         this is in the image and give a list of the bounding boxes for the ingredients identified in the image\
         exclusively listing only those related to the meal identified. \
         If no meal is identified return the object {error: "No meal identified"}. \
-        Ingredients = {ingredient_name: [x, y], ... ] // center of bounding box coordinates}\
+        Ingredients = {ingredient_name: [x, y], ... ] // center of bounding box coordinates in range of [0, 100], relative to the full size of image}\
         The intro text should be short e.g 'Yum, this looks like a delicious meal of'\
 
         In the format { intro: IntroText, name: mealName, ingredients: Object<Ingredients> }.`;
