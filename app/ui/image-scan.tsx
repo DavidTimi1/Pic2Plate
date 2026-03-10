@@ -68,7 +68,7 @@ export default function ScanImage({searchString}: {searchString?: string}) {
 
         try {
             const res = await RecipeAction({
-                imgSrc,
+                imgSrc: imgSrc || null,
                 ingredients,
                 tmpFile,
                 mealName: deduced.name,
