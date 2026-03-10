@@ -10,7 +10,7 @@ import { TEMPDIR } from "@/next.config";
 
 
 
-export async function deduceFromImage(json: { imageSrc: string, tmpSrc: string }) {
+export async function deduceFromImage(json: { imageSrc: string, tmpSrc?: string }) {
   const {imageSrc, tmpSrc} = json;
 
   let localFileName = tmpSrc, image_blob

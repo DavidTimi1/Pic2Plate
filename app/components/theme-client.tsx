@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { changeTheme, getTheme, initTheme } from '@/app/lib/theme';
+import { changeTheme, getTheme, initTheme, Theme } from '@/app/lib/theme';
 
 export default function ThemeClient() {
   useEffect(() => {
@@ -12,7 +12,7 @@ export default function ThemeClient() {
 }
 
 export function useTheme() {
-  const [theme, setTheme] = useState<'light' | 'dark'>(getTheme());
+  const [theme, setTheme] = useState<Theme>(getTheme());
 
   useEffect(() => {
     const handleStorageChange = () => {

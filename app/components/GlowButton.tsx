@@ -22,7 +22,7 @@ export const GlowInput = ({onSubmitMealDescription}: {onSubmitMealDescription: (
     </form>
   );
 
-  function handleSubmit(e) {
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();    
     const form = e.target;
     onSubmitMealDescription(form.description.value);

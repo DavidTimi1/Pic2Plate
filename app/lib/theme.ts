@@ -1,5 +1,7 @@
 const THEMES = ["light", "dark"];
 
+export type Theme = 'light' | 'dark';
+
 export function getTheme() {
     let pref = localStorage.getItem("theme");
     if (!pref) {
@@ -7,7 +9,7 @@ export function getTheme() {
         pref = prefLight ? "light" : "dark"
     }
 
-    return pref;
+    return pref as Theme;
 }
 
 
