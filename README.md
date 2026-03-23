@@ -55,10 +55,9 @@ To get started with Pic2Plate, follow these steps:
     replacing "************" with your actual api key:
 
     ```plaintext
-    GEMINI_API_KEY=************
+    GOOGLE_GENAI_API_KEY=
+    GOOGLE_GENAI_USE_VERTEXAI=***********
     NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=************
-    NEXT_PUBLIC_CLOUDINARY_API_KEY=************
-    CLOUDINARY_CLOUD_NAME=************
     CLOUDINARY_API_KEY=************
     CLOUDINARY_API_SECRET=************
     ```
