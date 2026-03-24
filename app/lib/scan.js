@@ -2,7 +2,7 @@ import { GoogleGenAI } from '@google/genai';
 
 const ai = new GoogleGenAI({
     apiKey: process.env.GOOGLE_GENAI_API_KEY,
-    vertexai: process.env.GOOGLE_GENAI_USE_VERTEXAI || true, 
+    vertexai: process.env.GOOGLE_GENAI_USE_VERTEXAI ?? true, 
 });
 
 export async function findIngredients(imgFile) {
@@ -25,12 +25,12 @@ export async function findIngredients(imgFile) {
                     those related to the meal identified. 
 
                     Rules:
-                    1. Ingredients = { [ingredient_name]: [x1, y1, x2, y2] } 
+                    1. type Ingredient = { [ingredient_name]: [x1, y1, x2, y2] } 
                     2. Use center coordinates in range [0, 1000] (normalized for Vertex AI).
                     3. Intro text should be short (e.g., 'Yum, this looks like...').
                     4. If no meal is identified, return { "error": "No meal identified" }.
 
-                    Format: { "intro": "IntroText", "name": "mealName", "ingredients": Ingredients[] }`
+                    Format: { "intro": "IntroText", "name": "mealName", "ingredients": Array<Ingredient> }`
                 }
             ]
         }

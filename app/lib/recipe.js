@@ -3,7 +3,7 @@ import { GoogleGenAI } from '@google/genai';
 // Initialize with the new SDK class
 const ai = new GoogleGenAI({
   apiKey: process.env.GOOGLE_GENAI_API_KEY,
-vertexai: process.env.GOOGLE_GENAI_USE_VERTEXAI || true, 
+vertexai: process.env.GOOGLE_GENAI_USE_VERTEXAI ?? true, 
 });
 
 export async function getRecipe(description, history) {
@@ -24,7 +24,7 @@ export async function getRecipe(description, history) {
     
     Requirements:
     1. Use Google Search to find special ingredients and current, accurate prices.
-    2. Respond strictly in the format: { "mealName": "name", "ingredients": Ingredient[], "recipe": Step[] }`;
+    2. Respond strictly in the format: { "mealName": "name", "ingredients": Array<Ingredient>, "recipe": Array<Step> }`;
 
     // Using stream for better UX, or you can use chat.sendMessage for a single block
     const result = await chat.sendMessage([{ text: prompt }]);
