@@ -1,6 +1,5 @@
 import { randomUUID } from "crypto";
 import { getCookies, setCookies } from "./cookies";
-import { GenerateContentResult } from "@google/generative-ai";
 import axios from "axios";
 import path from "path";
 import fs from "fs/promises";
@@ -9,13 +8,9 @@ import { TEMPDIR } from "@/next.config";
 
 
 
-export function cleanJSON(generatedContent: GenerateContentResult) {
-
-  // get the deduced info from the generated content
-  const deduced_info = generatedContent.response.text();
-
+export function cleanJSON(content: string) {
   // parse the deduced info from first {  to last }
-  const begng = ['{', '['].map(a => deduced_info.indexOf(a))
+  const begng = ['{', '['].map(a => content.indexOf(a))
   const starts : {[key: string]: string} = {
     [begng[0] > -1? begng[0] : Infinity]: '}',
     [begng[1] > -1? begng[1] : Infinity]: ']',
@@ -23,8 +18,8 @@ export function cleanJSON(generatedContent: GenerateContentResult) {
 
   const start = Math.min( ...( Object.keys(starts).map( a => parseInt(a)) ) )
 
-  const end = deduced_info.lastIndexOf( starts[ start ] ) + 1;
-  const cleanedJSON = JSON.parse(deduced_info.slice(start, end));
+  const end = content.lastIndexOf( starts[ start ] ) + 1;
+  const cleanedJSON = JSON.parse(content.slice(start, end));
 
   return cleanedJSON;
 }

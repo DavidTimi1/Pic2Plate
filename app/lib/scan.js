@@ -1,38 +1,44 @@
-// import { GoogleAIFileManager } from "@google/generative-ai/server";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI } from '@google/genai';
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-
-// const fileManager = new GoogleAIFileManager(GEMINI_API_KEY);
-const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
-
-
+const ai = new GoogleGenAI({
+    apiKey: process.env.GOOGLE_GENAI_API_KEY,
+    vertexai: process.env.GOOGLE_GENAI_USE_VERTEXAI || true, 
+});
 
 export async function findIngredients(imgFile) {
-    let prompt;
+    const modelId = 'gemini-3.1-pro-preview';
 
-    const filePart = {
-        inlineData: {
-            data: imgFile,
-            mimeType: "image/jpeg",
-        },
-    };
+    // The new SDK uses 'contents' with 'parts' structure
+    const contents = [
+        {
+            role: 'user',
+            parts: [
+                {
+                    inlineData: {
+                        data: imgFile, // Raw Base64 string
+                        mimeType: "image/jpeg",
+                    },
+                },
+                {
+                    text: `As a professional cook in local dishes, identify what meal this is in the image.
+                    Provide a list of the coordinates for the ingredients identified, exclusively listing 
+                    those related to the meal identified. 
 
-    if (imgFile) {
-        prompt = `As an professional cook in local dishes, Identify what meal\
-        this is in the image and give a list of the bounding boxes for the ingredients identified in the image\
-        exclusively listing only those related to the meal identified. \
-        If no meal is identified return the object {error: "No meal identified"}. \
-        Ingredients = {ingredient_name: [x, y], ... ] // center of bounding box coordinates in range of [0, 100], relative to the full size of image}\
-        The intro text should be short e.g 'Yum, this looks like a delicious meal of'\
+                    Rules:
+                    1. Ingredients = { [ingredient_name]: [x1, y1, x2, y2] } 
+                    2. Use center coordinates in range [0, 1000] (normalized for Vertex AI).
+                    3. Intro text should be short (e.g., 'Yum, this looks like...').
+                    4. If no meal is identified, return { "error": "No meal identified" }.
 
-        In the format { intro: IntroText, name: mealName, ingredients: Ingredients[] }.`;
+                    Format: { "intro": "IntroText", "name": "mealName", "ingredients": Ingredients[] }`
+                }
+            ]
+        }
+    ];
 
-    }
-
-    const convo = model.startChat();
-    const generatedContent = await convo.sendMessage([filePart, prompt]);
-
-    return generatedContent;
+        const result = await ai.models.generateContent({
+            model: modelId,
+            contents: contents
+        });
+        return result.text || '';
 }

@@ -26,7 +26,7 @@ export interface HistoryItemData extends RecipeResult {
 
 
 export interface IngredientLocation {
-    [key: string]: number[][], // bounding box coordinates}
+    [key: string]: number[], // bounding box coordinates}
 }
 
 export interface Scanned {

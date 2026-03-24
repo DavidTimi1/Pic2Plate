@@ -18,7 +18,9 @@ export default function ImagePlacer({ ingredients }: ImagePlacerProps) {
       <TooltipProvider>
         {
           Object.entries(ingredients).map(([ingredient, coords], index) => {
-            const [xOffset, yOffset] = [coords?.[0] || 0, coords?.[1] || 0];
+            const [x1, y1, x2, y2] = coords || [0, 0, 0, 0];
+            const xOffset = (x1 + x2) / 20; // Normalize to [0, 100] for percentage
+            const yOffset = (y1 + y2) / 20;
 
             return (
               <Tooltip open key={index}>

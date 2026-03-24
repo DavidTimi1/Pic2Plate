@@ -1,26 +1,34 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI } from '@google/genai';
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-
-const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-
+// Initialize with the new SDK class
+const ai = new GoogleGenAI({
+  apiKey: process.env.GOOGLE_GENAI_API_KEY,
+vertexai: process.env.GOOGLE_GENAI_USE_VERTEXAI || true, 
+});
 
 export async function getRecipe(description, history) {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" })
+  const model = 'gemini-2.5-pro';
 
-    const convo = model.startChat({ history });
+  // Create the chat session
+  const chat = ai.chats.create({
+    model: model,
+    history: history
+  });
 
-    const prompt = `Generate a detailed step-by-step recipe for this meal. 
-        Keep in mind (very important): ${description}
-        type Ingredient: {name, quantity}
-        type Step: {description, duration, price?} # price only when necessary like when budget was mentioned
-        Make sure to search for any special ingredients that might be needed for this recipe.
-        Make sure to also search for accurate price for each ingredient especially if a budget was mentioned.
-        In the format { mealName: meal_name, ingredients: Ingredient[], recipe: Step[] }
-        `;
+  const prompt = `Generate a detailed step-by-step recipe for this meal. 
+    Keep in mind (very important): ${description}
+    
+    Data Structures:
+    type Ingredient: {name, quantity}
+    type Step: {description, duration, price?} # price only when necessary (e.g., if a budget was mentioned)
+    
+    Requirements:
+    1. Use Google Search to find special ingredients and current, accurate prices.
+    2. Respond strictly in the format: { "mealName": "name", "ingredients": Ingredient[], "recipe": Step[] }`;
 
-    const generatedContent = await convo.sendMessage(prompt)
-
-    return generatedContent
+    // Using stream for better UX, or you can use chat.sendMessage for a single block
+    const result = await chat.sendMessage([{ text: prompt }]);
+    
+    const response = result.text || '';
+    return response;
 }
-
