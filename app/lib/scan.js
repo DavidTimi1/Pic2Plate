@@ -40,5 +40,5 @@ export async function findIngredients(imgFile) {
             model: modelId,
             contents: contents
         });
-        return result.text;
+        return result.text || '';
 }
