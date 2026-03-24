@@ -1,9 +1,6 @@
 import { randomUUID } from "crypto";
 import { getCookies, setCookies } from "./cookies";
-import axios from "axios";
-import path from "path";
-import fs from "fs/promises";
-import { TEMPDIR } from "@/next.config";
+import { cache } from "react";
 
 
 
@@ -43,31 +40,14 @@ export async function getUserID(){
 
 
 
-export async function importExternalImage(url: string): Promise<string | null> {
-    /**
-     * Converts an image URL to Base64 with error handling.
-     */
+export const getCachedImage = cache(async (url: string) => {
+  const res = await fetch(url, {
+    next: { revalidate: 3600 } // Cache on disk for 1 hour
+  });
   
-    try {
-      const response = await axios.get(url, {
-        responseType: 'arraybuffer', // Important: This ensures we get binary data
-        timeout: 5000, // Set a timeout (adjust as needed)
-      });
+  if (!res.ok) throw new Error('Failed to fetch image');
   
-      // Convert Blob to Buffer
-      const buffer = Buffer.from(response.data);
-  
-      // Move file to the desired location
-      const ext = ".jpg";
-      const newFileName = `${randomUUID()}${ext}`;
-      const filePath = path.join(TEMPDIR, `uploads_${newFileName}`);
-  
-      await fs.writeFile(filePath, buffer);
-  
-      return newFileName;
-  
-    } catch {
-      console.error('Error fetching image from External Link:', url);
-      return null; // Return null if the request fails
-    }
-  }
+  // Return the buffer or base64
+  const arrayBuffer = await res.arrayBuffer();
+  return Buffer.from(arrayBuffer).toString('base64');
+});

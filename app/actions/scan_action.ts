@@ -1,47 +1,25 @@
 
 "use server";
 
-import fs from "fs/promises";
-import path from "path";
 import { findIngredients } from "../lib/scan";
-import { cleanJSON, importExternalImage } from "../lib/helpers";
+import { cleanJSON, getCachedImage } from "../lib/helpers";
 import { AIError, Scanned } from "../lib/definitions";
-import { TEMPDIR } from "@/next.config";
 
 
 
-export async function deduceFromImage(json: { imageSrc?: string, tmpSrc?: string }) {
-  const { imageSrc, tmpSrc } = json;
+export async function deduceFromImage(json: { imageSrc?: string}) {
+  const { imageSrc } = json;
 
-  if (!imageSrc && !tmpSrc)
+  if (!imageSrc)
     return { success: false, error: "No image provided" };
 
-  let localFileName = tmpSrc ?? "", image_blob
-  let filePath = path.join(TEMPDIR, `uploads_${localFileName}`);
-
-
+  let image_data;
   try {
-    if (localFileName) {
-      image_blob = await fs.readFile(filePath);
-    }
-
-  } catch {
-    // check if file exists
-    localFileName = await importExternalImage(imageSrc ?? "") ?? "";
-
-    if (!localFileName)
-      return { success: false, error: "File not found" };
-
-    filePath = path.join(TEMPDIR, `uploads_${localFileName}`);
-
-    image_blob = await fs.readFile(filePath);
+    image_data = await getCachedImage(imageSrc);
+    
+  } catch (err) {
+    return { success: false, error: "Error importing image" };  
   }
-
-  if (!image_blob){
-    return { success: false, error: "File not found" };
-  }
-
-  const image_data = image_blob.toString("base64");
 
   try {
     const ai_response = await findIngredients(image_data);
@@ -51,7 +29,7 @@ export async function deduceFromImage(json: { imageSrc?: string, tmpSrc?: string
       return { success: false, error: scanned.error };
     }
 
-    return { success: true, data: scanned, imgUrl: localFileName };
+    return { success: true, data: scanned };
 
   } catch (err) {
     console.log(err)

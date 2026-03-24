@@ -1,24 +1,20 @@
 
 "use server";
 
-import fs from "fs/promises";
-import path from "path";
 import { getRecipe } from "../lib/recipe";
-import { cleanJSON, getUserID, importExternalImage } from "../lib/helpers";
+import { cleanJSON, getCachedImage, getUserID } from "../lib/helpers";
 import { randomUUID } from "crypto";
-import { TEMPDIR } from "@/next.config";
 import { addSeshHistory } from "../lib/session";
 
 interface RecipeActionProps {
     mealName: string | null,
     imgSrc: string | null,
-    tmpFile: string,
     ingredients: string[],
     details: string,
 }
 
 
-export default async function RecipeAction({ingredients, imgSrc, mealName, details, tmpFile}: RecipeActionProps){    
+export default async function RecipeAction({ ingredients, imgSrc, mealName, details }: RecipeActionProps) {
     // Retrieve user ID
     const userID = await getUserID();
     const convoID = randomUUID();
@@ -28,10 +24,10 @@ export default async function RecipeAction({ingredients, imgSrc, mealName, detai
         mealName,
         ingredients,
     }
-    const chatHistory = await convoHistory(tmpFile, imgSrc, JSON.stringify(prevGenerated));
+    const chatHistory = await convoHistory(imgSrc, JSON.stringify(prevGenerated));
 
     let recipe;
-    
+
     try {
         const ai_response = await getRecipe(details, chatHistory);
         recipe = cleanJSON(ai_response);
@@ -46,7 +42,7 @@ export default async function RecipeAction({ingredients, imgSrc, mealName, detai
 
         return { success: true, id: convoID };
 
-    } catch(err) {
+    } catch (err) {
         console.error(err)
         return { success: false, error: "Error connecting with DB" };
     }
@@ -54,69 +50,42 @@ export default async function RecipeAction({ingredients, imgSrc, mealName, detai
 
 
 
-async function convoHistory(tmpFile: string, imgSrc: string | null, prevJSON: string){
+async function convoHistory(imgSrc: string | null, prevJSON: string) {
     const history = [];
-    let localFileName = tmpFile;
 
     // check if file exists
-    if (!localFileName && imgSrc) {
-        localFileName = await importExternalImage(imgSrc) ?? "";
+    if (!imgSrc)
+        return [];
 
-        if (!localFileName)
-            return [];
-    }
+    const image_data = await getCachedImage(imgSrc);
 
+    const filePart = {
+        inlineData: {
+            data: image_data,
+            mimeType: "image/jpeg",
+        },
+    };
 
-    if (imgSrc){
-        let filePath = path.join(TEMPDIR, `uploads_${localFileName}`);
-        let image_blob;
-
-        try {
-            image_blob = await fs.readFile(filePath);
-
-        } catch {
-            // check if file exists
-            localFileName = await importExternalImage(imgSrc) ?? "";
-        
-            if (!localFileName)
-              return [];
-        
-            filePath = path.join(TEMPDIR, `uploads_${localFileName}`);
-            
-            image_blob = await fs.readFile(filePath);
-
-        } finally {
-            
-            const filePart = {
-                inlineData: {
-                    data: image_blob?.toString?.("base64"),
-                    mimeType: "image/jpeg",
-                },
-            };
-        
-            // user initial request
-            history.push({
-                role: "user",
-                parts: [
-                    filePart,
-                    {
-                        text: "As an professional cook in local dishes, Identify what meal\
+    // user initial request
+    history.push({
+        role: "user",
+        parts: [
+            filePart,
+            {
+                text: "As an professional cook in local dishes, Identify what meal\
                         this is in the image and give a list of the ingredients identified in the image\
                         In the format { name: meal_name, ingredients: Array<Ingredient> } no comments, pure json."
-                    },
-                ]
-            });
+            },
+        ]
+    });
 
-            // model response (scan)
-            history.push({
-                role: "model",
-                parts: [{
-                    text: prevJSON
-                }]
-            });
-
-        }
-    }
+    // model response (scan)
+    history.push({
+        role: "model",
+        parts: [{
+            text: prevJSON
+        }]
+    });
 
     return history;
 }
