@@ -25,12 +25,12 @@ export async function findIngredients(imgFile) {
                     those related to the meal identified. 
 
                     Rules:
-                    1. type Ingredient = { [ingredient_name]: [x1, y1, x2, y2] } 
+                    1. type IngredientMap = { [ingredient_name]: [x1, y1, x2, y2] for all ingredients identified } 
                     2. Use center coordinates in range [0, 1000] (normalized for Vertex AI).
                     3. Intro text should be short (e.g., 'Yum, this looks like...').
                     4. If no meal is identified, return { "error": "No meal identified" }.
 
-                    Format: { "intro": "IntroText", "name": "mealName", "ingredients": Array<Ingredient> }`
+                    Format: { "intro": "IntroText", "name": "mealName", "ingredients": IngredientMap }`
                 }
             ]
         }
