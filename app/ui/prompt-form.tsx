@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
 import { Progress } from "@/components/ui/progress";
 import Link from "next/link";
+import { idFromImageURL } from "../lib/utils";
 
 export default function ImageUploadForm() {
   const nextRoute = "/browse";
@@ -91,7 +92,8 @@ export default function ImageUploadForm() {
           title: "Image uploaded successfully!",
           description: "Redirecting to your recipe...",
         });
-        router.push(`${nextRoute}?image=${url}`);
+        const imageID = idFromImageURL(url);
+        router.push(`${nextRoute}?image=${imageID}`);
       } else {
         throw new Error("Invalid response from server.");
       }
@@ -170,9 +172,10 @@ export default function ImageUploadForm() {
         </CardContent>
 
         <CardFooter className="flex flex-col gap-4">
-          {image && (
+          {loading || uploadProgress && (
             <Progress value={uploadProgress} className="w-full h-2 transition-all duration-300" />
           )}
+
           <Button
             onClick={handleBtnClick}
             disabled={!image || loading}
