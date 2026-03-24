@@ -25,7 +25,7 @@ interface DeducedInfo {
     ingredients: IngredientLocation;
 }
 
-export default function ScanImage({searchString}: {searchString?: string}) {
+export default function ScanImage({ searchString }: { searchString?: string }) {
     const router = useRouter();
     const { toast } = useToast();
     const searchParams = useSearchParams();
@@ -36,7 +36,7 @@ export default function ScanImage({searchString}: {searchString?: string}) {
     const [loading, setLoading] = useState<'scanning' | false | 'generating'>(imgSrc ? 'scanning' : false);
     const [deducedDetails, setDeducedDetails] = useState(query ?? searchString ?? '');
     const [scanError, setScanError] = useState('');
-    
+
     useEffect(() => {
         if (!imgSrc) {
             toast({
@@ -122,7 +122,7 @@ export default function ScanImage({searchString}: {searchString?: string}) {
         </div>
     );
 
-    function processImageScan(){
+    function processImageScan() {
         const tmpFile = window.location.hash.slice(1);
 
         setLoading('scanning');
@@ -169,7 +169,7 @@ function ImageDisplay({ imgSrc, loading, deduced, scanError }: {
 }) {
     return (
         <div className="relative aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl">
-            {imgSrc && !scanError ? (
+            {imgSrc ? (
                 <>
                     <CldImage
                         alt="Scanned meal"
@@ -179,6 +179,17 @@ function ImageDisplay({ imgSrc, loading, deduced, scanError }: {
                         crop={{ type: 'auto', source: true }}
                         className="w-full h-full object-cover"
                     />
+                    {
+                        scanError && (
+                            <div className="w-full h-full flex flex-col items-center justify-center bg-muted/50 p-8 text-center">
+                                <InfoIcon className="h-16 w-16 text-muted-foreground" />
+                                <p className="mt-4 text-xl text-muted-foreground">
+                                    {scanError || "An error occurred while scanning the image."}
+                                </p>
+                            </div>
+                        )
+                    }
+
                     {loading === "scanning" && (
                         <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent flex items-end justify-center p-8">
                             <div className="w-full h-2 absolute bg-primary blur-sm top-0 left-0 scan-beam"></div>
@@ -189,7 +200,7 @@ function ImageDisplay({ imgSrc, loading, deduced, scanError }: {
                         </div>
                     )}
                     {deduced && (
-                        <ImagePlacer 
+                        <ImagePlacer
                             ingredients={deduced.ingredients}
                             mealName={deduced.name}
                         />

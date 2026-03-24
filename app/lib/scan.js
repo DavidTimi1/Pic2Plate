@@ -1,7 +1,6 @@
-import { Client } from '@google/genai';
+import { GoogleGenAI } from '@google/genai';
 
-// Setup the client to match your Python guide's Vertex AI configuration
-const client = new Client({
+const ai = new GoogleGenAI({
     apiKey: process.env.GOOGLE_GENAI_API_KEY,
     vertexai: process.env.GOOGLE_GENAI_USE_VERTEXAI || true, 
 });
@@ -26,18 +25,18 @@ export async function findIngredients(imgFile) {
                     those related to the meal identified. 
 
                     Rules:
-                    1. Ingredients = { "ingredient_name": [x, y] } 
+                    1. Ingredients = { [ingredient_name]: [x1, y1, x2, y2] } 
                     2. Use center coordinates in range [0, 1000] (normalized for Vertex AI).
                     3. Intro text should be short (e.g., 'Yum, this looks like...').
                     4. If no meal is identified, return { "error": "No meal identified" }.
 
-                    Format: { "intro": "IntroText", "name": "mealName", "ingredients": Object }`
+                    Format: { "intro": "IntroText", "name": "mealName", "ingredients": Ingredients[] }`
                 }
             ]
         }
     ];
 
-        const result = await client.models.generateContent({
+        const result = await ai.models.generateContent({
             model: modelId,
             contents: contents,
             config: generateContentConfig,
