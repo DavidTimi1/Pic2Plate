@@ -38,8 +38,7 @@ export async function findIngredients(imgFile) {
 
         const result = await ai.models.generateContent({
             model: modelId,
-            contents: contents,
-            config: generateContentConfig,
+            contents: contents
         });
         return result.response.text();
 }
