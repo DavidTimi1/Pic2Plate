@@ -17,7 +17,7 @@ export async function deduceFromImage(json: { imageSrc?: string}) {
   try {
     image_data = await getCachedImage(imageSrc);
     
-  } catch (err) {
+  } catch {
     return { success: false, error: "Error importing image" };  
   }
 
