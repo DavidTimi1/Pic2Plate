@@ -25,7 +25,8 @@ export async function findIngredients(imgFile) {
                     those related to the meal identified. 
 
                     Rules:
-                    1. type IngredientMap = { [ingredient_name]: [x1, y1, x2, y2] for all ingredients identified } 
+                    1. type IngredientMap = { [ingredient_name1]: [x1, y1, x2, y2], [ingredient_name2]: [x1, y1, x2, y2], ... } 
+                    where 1 ingredient has multiple appearances, include only the most prominent one (e.g., largest bounding box).
                     2. Use center coordinates in range [0, 1000] (normalized for Vertex AI).
                     3. Intro text should be short (e.g., 'Yum, this looks like...').
                     4. If no meal is identified, return { "error": "No meal identified" }.
