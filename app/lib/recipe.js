@@ -29,6 +29,6 @@ export async function getRecipe(description, history) {
     // Using stream for better UX, or you can use chat.sendMessage for a single block
     const result = await chat.sendMessage([{ text: prompt }]);
     
-    const response = result.response.candidates[0].content.parts[0].text;
+    const response = result.text;
     return response;
 }
