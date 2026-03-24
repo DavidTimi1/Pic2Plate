@@ -1,9 +1,10 @@
 import { GoogleGenAI } from '@google/genai';
 
 // Initialize with the new SDK class
+const useVertexAI = process.env.GOOGLE_GENAI_USE_VERTEXAI !== 'false';
 const ai = new GoogleGenAI({
   apiKey: process.env.GOOGLE_GENAI_API_KEY,
-vertexai: process.env.GOOGLE_GENAI_USE_VERTEXAI ?? true, 
+  vertexai: useVertexAI, 
 });
 
 export async function getRecipe(description, history) {
@@ -27,7 +28,7 @@ export async function getRecipe(description, history) {
     2. Respond strictly in the format: { "mealName": "name", "ingredients": Array<Ingredient>, "recipe": Array<Step> }`;
 
     // Using stream for better UX, or you can use chat.sendMessage for a single block
-    const result = await chat.sendMessage([{ text: prompt }]);
+    const result = await chat.sendMessage({ message: prompt });
     
     const response = result.text || '';
     return response;

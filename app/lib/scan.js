@@ -1,8 +1,9 @@
 import { GoogleGenAI } from '@google/genai';
 
+const useVertexAI = process.env.GOOGLE_GENAI_USE_VERTEXAI !== 'false';
 const ai = new GoogleGenAI({
-    apiKey: process.env.GOOGLE_GENAI_API_KEY,
-    vertexai: process.env.GOOGLE_GENAI_USE_VERTEXAI ?? true, 
+  apiKey: process.env.GOOGLE_GENAI_API_KEY,
+  vertexai: useVertexAI, 
 });
 
 export async function findIngredients(imgFile) {
