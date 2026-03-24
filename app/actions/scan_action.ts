@@ -4,16 +4,19 @@
 import { findIngredients } from "../lib/scan";
 import { cleanJSON, getCachedImage } from "../lib/helpers";
 import { AIError, Scanned } from "../lib/definitions";
+import { imageURLFromID } from "../lib/utils";
 
 
 
-export async function deduceFromImage(json: { imageSrc?: string}) {
-  const { imageSrc } = json;
+export async function deduceFromImage(json: { imgID?: string}) {
+  const { imgID } = json;
+  const imageSrc = imgID ? imageURLFromID(imgID) : null;
 
   if (!imageSrc)
     return { success: false, error: "No image provided" };
 
   let image_data;
+
   try {
     image_data = await getCachedImage(imageSrc);
     

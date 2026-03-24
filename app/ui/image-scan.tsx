@@ -71,7 +71,7 @@ export default function ScanImage({ searchString }: { searchString?: string }) {
 
         try {
             const res = await RecipeAction({
-                imgSrc: imgSrc || null,
+                imgID,
                 ingredients,
                 mealName: deduced.name,
                 details: deducedDetails,
@@ -128,7 +128,7 @@ export default function ScanImage({ searchString }: { searchString?: string }) {
         setLoading('scanning');
         setScanError('');
 
-        deduceFromImage({ imageSrc: imgSrc })
+        deduceFromImage({ imgID })
             .then(res => {
                 if (res.success && res.data) {
                     setTimeout(() => {
