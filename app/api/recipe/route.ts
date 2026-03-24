@@ -30,11 +30,11 @@ export async function POST(req: NextRequest) {
             id: convoID
         }, { status: 200 });
 
-    } catch (err: any) {
+    } catch (err) {
         console.error("API Error:", err);
         return NextResponse.json({ 
             success: false, 
-            error: err.message || "Internal Server Error" 
+            error: (err as Error).message || "Internal Server Error" 
         }, { status: 500 });
     }
 }
