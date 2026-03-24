@@ -27,7 +27,7 @@ export async function findIngredients(imgFile) {
         Ingredients = {ingredient_name: [x, y], ... ] // center of bounding box coordinates in range of [0, 100], relative to the full size of image}\
         The intro text should be short e.g 'Yum, this looks like a delicious meal of'\
 
-        In the format { intro: IntroText, name: mealName, ingredients: Object<Ingredients> }.`;
+        In the format { intro: IntroText, name: mealName, ingredients: Ingredients[] }.`;
 
     }
 
