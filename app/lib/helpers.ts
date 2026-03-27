@@ -1,5 +1,5 @@
 import { randomUUID } from "crypto";
-import { getCookies, setCookies } from "./cookies";
+import { getSessionCookies, setCookies } from "./cookies";
 import { cache } from "react";
 
 
@@ -24,7 +24,7 @@ export function cleanJSON(content: string) {
 
 export async function getUserID(){
     // Retrieve or set session cookie
-    const cookies = await getCookies();
+    const cookies = await getSessionCookies();
     let userID;
 
     if (cookies.userID) {
