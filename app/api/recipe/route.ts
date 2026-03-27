@@ -4,39 +4,46 @@ import { cleanJSON, getCachedImage, getUserID } from "@/lib/helpers";
 import { randomUUID } from "crypto";
 import { addSeshHistory } from "@/lib/session";
 import { imageURLFromID } from "@/lib/utils";
+import { waitUntil } from '@vercel/functions';
 
 
 export async function POST(req: NextRequest) {
-    try {
-        const body = await req.json();
-        const { mealName, imgID, ingredients, details } = body;
+    const body = await req.json();
+    const { mealName, imgID, ingredients, details } = body;
 
-        const userID = await getUserID();
-        const convoID = randomUUID();
-        const imgSrc = imgID ? imageURLFromID(imgID) : null;
+    const convoID = randomUUID();
+    const imgSrc = imgID ? imageURLFromID(imgID) : null;
 
-        const prevGenerated = { mealName, ingredients };
-        const chatHistory = await convoHistory(imgSrc, JSON.stringify(prevGenerated));
+    const prevGenerated = { mealName, ingredients };
 
-        // Call AI
-        const ai_response = await getRecipe(details, chatHistory);
-        const recipe = cleanJSON(ai_response);
+    waitUntil(
+        (async () => {
+            try {
+                const [userID, chatHistory] = await Promise.all([
+                    getUserID(),
+                    convoHistory(imgSrc, JSON.stringify(prevGenerated))
+                ]);
 
-        // Database logic
-        await addSeshHistory(userID, convoID, recipe, imgSrc);
+                // Call AI
+                const ai_response = await getRecipe(details, chatHistory);
+                const recipe = cleanJSON(ai_response);
 
-        return NextResponse.json({ 
-            success: true, 
-            id: convoID
-        }, { status: 200 });
+                // Save to Database
+                await addSeshHistory(userID, convoID, recipe, imgSrc);
 
-    } catch (err) {
-        console.error("API Error:", err);
-        return NextResponse.json({ 
-            success: false, 
-            error: (err as Error).message || "Internal Server Error" 
-        }, { status: 500 });
-    }
+                console.log(`✅ Successfully generated and saved recipe for ${convoID}`);
+
+            } catch (bgError) {
+                // Wont reach FE
+                console.error(`❌ Background processing failed for ${convoID}:`, bgError);
+            }
+        })()
+    );
+
+    return NextResponse.json({ 
+        success: true, 
+        id: convoID
+    }, { status: 200 });
 }
 
 

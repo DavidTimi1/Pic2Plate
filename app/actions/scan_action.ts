@@ -1,12 +1,9 @@
-
 "use server";
 
 import { findIngredients } from "../lib/scan";
 import { cleanJSON, getCachedImage } from "../lib/helpers";
 import { AIError, Scanned } from "../lib/definitions";
 import { imageURLFromID } from "../lib/utils";
-
-
 
 export async function deduceFromImage(json: { imgID?: string}) {
   const { imgID } = json;

@@ -17,6 +17,7 @@
     "@radix-ui/react-slot": "^1.2.3",
     "@radix-ui/react-toast": "^1.2.14",
     "@radix-ui/react-tooltip": "^1.2.7",
+    "@vercel/functions": "^3.4.3",
     "@vercel/postgres": "^0.10.0",
     "axios": "^1.7.9",
     "class-variance-authority": "^0.7.1",
