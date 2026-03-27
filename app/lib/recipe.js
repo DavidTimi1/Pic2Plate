@@ -8,7 +8,7 @@ const ai = new GoogleGenAI({
 });
 
 export async function getRecipe(description, history) {
-  const model = 'gemini-2.5-pro';
+  const model = 'gemini-3.1-pro-preview';
 
   // Create the chat session
   const chat = ai.chats.create({
