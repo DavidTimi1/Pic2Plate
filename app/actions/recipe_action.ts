@@ -1,4 +1,3 @@
-import { toast } from "@/hooks/use-toast";
 import axios from "axios";
 
 interface RecipeActionProps {
