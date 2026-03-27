@@ -1,5 +1,7 @@
 "use server";
 
+import { getCookie } from "../lib/cookies";
+import { HistoryItemData } from "../lib/definitions";
 import { getUserID } from "../lib/helpers";
 import { getSeshHistory } from "../lib/session";
 
@@ -23,9 +25,21 @@ export default async function ConvoDetails( {id}: {id: string} ) {
     const convoHistories = fullHistory.filter((convo) => convo.id === id);
 
     if (!convoHistories.length) {
+        // return the local recipe if it exists, otherwise return an error
+        const localRecipe = await getCookie(id);
+        if (localRecipe) {
+            return {
+                success: true,
+                data: {
+                    ...localRecipe?.recipe,
+                    imgSrc: localRecipe?.imgSrc || null,
+                } as HistoryItemData
+            }
+        }
+
         return {
             success: false,
-            error: "No conversation found with that ID",
+            error: "No recipe found with that ID",
         }
     }
 
@@ -33,5 +47,4 @@ export default async function ConvoDetails( {id}: {id: string} ) {
         success: true,
         data: convoHistories[0].data,
     }
-
 }
