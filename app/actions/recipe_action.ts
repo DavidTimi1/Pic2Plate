@@ -15,11 +15,13 @@ interface RecipeResponse {
 
 export default async function RecipeAction(props: RecipeActionProps): Promise<RecipeResponse> {
     try {
+        console.log("Initiating recipe generation with props:", props);
         const { data } = await axios.post<RecipeResponse>(
             "/api/recipe", 
             props
         );
 
+        console.log("try to save recipe to DB with convoID:", data.id);
         ensureRecipeSaved(data.id!);
 
         return data;

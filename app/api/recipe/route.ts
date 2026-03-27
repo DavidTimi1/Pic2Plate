@@ -15,13 +15,16 @@ export async function POST(req: NextRequest) {
     const imgSrc = imgID ? imageURLFromID(imgID) : null;
 
     const prevGenerated = { mealName, ingredients };
+    console.log(`Received request for ${convoID} with meal: ${mealName} and image: ${imgSrc}`);
 
     try {
         const chatHistory = await convoHistory(imgSrc, JSON.stringify(prevGenerated));
+        console.log("got convo history")
 
         // Call AI
         const ai_response = await getRecipe(details, chatHistory);
         const recipe = cleanJSON(ai_response);
+        console.log("got recipe from AI")
 
         // Save temporarily
         await saveAsCookie(
