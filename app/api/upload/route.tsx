@@ -30,9 +30,7 @@ export async function POST(req: NextRequest) {
       folder: 'uploads',
     });
 
-    const cmpdPath = uploadResponse.secure_url + "#" + newFileName
-
-    return NextResponse.json({ message: "Upload successful", url: cmpdPath }, { status: 200 });
+    return NextResponse.json({ message: "Upload successful", url: uploadResponse.secure_url }, { status: 200 });
   } catch (error) {
     return NextResponse.json({ error: (error as Error).message }, { status: 500 });
   }

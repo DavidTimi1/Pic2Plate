@@ -18,6 +18,7 @@ import { IngredientLocation } from "@/lib/definitions";
 
 import ImagePlacer from "./image-placer";
 import { Badge } from "../components/ui/badge";
+import { imageURLFromID } from "../lib/utils";
 
 interface DeducedInfo {
     name: string;
@@ -29,7 +30,10 @@ export default function ScanImage({ searchString }: { searchString?: string }) {
     const router = useRouter();
     const { toast } = useToast();
     const searchParams = useSearchParams();
-    const imgSrc = searchParams.get("image") || undefined;
+
+    const imgID = searchParams.get("image") || undefined;
+    const imgSrc = imgID ? imageURLFromID(imgID) : undefined;
+
     const query = searchParams.get("description") || undefined;
 
     const [deduced, setDeduced] = useState<DeducedInfo | undefined>(undefined);
@@ -38,7 +42,7 @@ export default function ScanImage({ searchString }: { searchString?: string }) {
     const [scanError, setScanError] = useState('');
 
     useEffect(() => {
-        if (!imgSrc) {
+        if (!imgID) {
             toast({
                 title: "No image selected",
                 description: "Please go back and upload an image.",
@@ -49,14 +53,13 @@ export default function ScanImage({ searchString }: { searchString?: string }) {
 
         processImageScan();
 
-    }, [imgSrc]);
+    }, [imgID]);
 
     const handleGenerateRecipe = async () => {
         setLoading('generating');
-        const tmpFile = window.location.hash.slice(1);
         const ingredients = Object.keys(deduced?.ingredients ?? {});
 
-        if ((!imgSrc && !deducedDetails) || !deduced) {
+        if ((!imgID && !deducedDetails) || !deduced) {
             toast({
                 title: "Incomplete Information",
                 description: "You must provide a description or upload an image.",
@@ -68,9 +71,8 @@ export default function ScanImage({ searchString }: { searchString?: string }) {
 
         try {
             const res = await RecipeAction({
-                imgSrc: imgSrc || null,
+                imgID,
                 ingredients,
-                tmpFile,
                 mealName: deduced.name,
                 details: deducedDetails,
             });
@@ -123,12 +125,10 @@ export default function ScanImage({ searchString }: { searchString?: string }) {
     );
 
     function processImageScan() {
-        const tmpFile = window.location.hash.slice(1);
-
         setLoading('scanning');
         setScanError('');
 
-        deduceFromImage({ imageSrc: imgSrc, tmpSrc: tmpFile })
+        deduceFromImage({ imgID })
             .then(res => {
                 if (res.success && res.data) {
                     setTimeout(() => {
