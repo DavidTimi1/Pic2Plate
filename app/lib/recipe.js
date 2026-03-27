@@ -24,8 +24,7 @@ export async function getRecipe(description, history) {
     type Step: {description, duration, price?} # price only when necessary (e.g., if a budget was mentioned)
     
     Requirements:
-    1. Try your best to assume special ingredients and accurate prices.
-    2. Respond strictly in the format: { "mealName": "name", "ingredients": Array<Ingredient>, "recipe": Array<Step> }`;
+    . Respond strictly in the format: { "mealName": "name", "ingredients": Array<Ingredient>, "recipe": Array<Step> }`;
 
     // Using stream for better UX, or you can use chat.sendMessage for a single block
     const result = await chat.sendMessage({ message: prompt });
